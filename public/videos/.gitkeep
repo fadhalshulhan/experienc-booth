@@ -1,0 +1,20 @@
+# Place your video files here
+
+## Directory Structure
+
+```
+videos/
+  healthygo/
+    idle1.mp4
+    idle2.mp4
+    idle3.mp4
+    talking.mp4
+    thinking.mp4
+    tool_*.mp4
+  jago/
+    idle1.mp4
+    talking.mp4
+```
+
+Make sure to update the paths in `config/booths.ts` to match your video files.
+
