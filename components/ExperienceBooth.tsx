@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { getBoothConfig, BoothConfig } from '@/config/booths';
@@ -261,24 +262,31 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
       )}
 
       <div className="absolute inset-0 z-0 bg-black">
-        <div
-          className="absolute inset-0 flex items-center justify-center px-3 sm:px-6"
-        >
+        <div className="absolute inset-0 flex items-center justify-center px-3 sm:px-6">
           <div className="w-full max-w-[min(100%,_100vh*9/16)]">
             <div className="relative w-full pt-[56.25%]">
-              <div className="absolute inset-0 overflow-hidden rounded-[28px] border border-white/10 shadow-[0_18px_65px_-35px_rgba(0,0,0,0.75)] shadow-black/30 backdrop-blur-sm">
-                {previewVideo && !conversationActive ? (
-                  <VideoPlayer key="preview" videoUrl={previewVideo} loop objectFit="cover" />
-                ) : (
-                  <VideoPlayer
-                    key={currentVideoUrl}
-                    videoUrl={currentVideoUrl}
-                    loop={currentState === 'talking' || currentState === 'thinking'}
-                    objectFit="cover"
-                    onEnded={handleVideoEnded}
-                  />
-                )}
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={previewVideo && !conversationActive ? 'preview' : `${currentState}-${currentVideoUrl}`}
+                  className="absolute inset-0 overflow-hidden rounded-[28px] border border-white/10 shadow-[0_18px_65px_-35px_rgba(0,0,0,0.75)] shadow-black/30 backdrop-blur-sm"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                >
+                  {previewVideo && !conversationActive ? (
+                    <VideoPlayer key="preview" videoUrl={previewVideo} loop objectFit="cover" />
+                  ) : (
+                    <VideoPlayer
+                      key={currentVideoUrl}
+                      videoUrl={currentVideoUrl}
+                      loop={currentState === 'talking' || currentState === 'thinking'}
+                      objectFit="cover"
+                      onEnded={handleVideoEnded}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -297,40 +305,57 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         volumeLevel={volumeLevel}
       />
 
-      {!conversationActive && (
-        <div className="absolute top-1/2 left-1/2 z-40 w-[min(85%,320px)] -translate-x-1/2 -translate-y-1/2 sm:w-[min(70%,360px)]">
-          <button
-            onClick={handleStartConversation}
-            disabled={startingConversation}
-            className="group flex w-full items-center justify-center gap-3 rounded-[26px] px-6 py-4 text-lg font-semibold uppercase tracking-[0.25em] text-white shadow-[0_20px_45px_-25px_rgba(0,0,0,0.75)] transition-all duration-300 hover:shadow-[0_26px_60px_-25px_rgba(0,0,0,0.85)] disabled:cursor-not-allowed disabled:opacity-60 hover:scale-[1.015] active:scale-95 sm:px-7 sm:py-5 sm:text-xl sm:tracking-[0.3em]"
-            style={{ backgroundColor: config.theme.primary }}
+      <AnimatePresence>
+        {!conversationActive && (
+          <motion.div
+            className="absolute top-1/2 left-1/2 z-40 w-[min(85%,320px)] -translate-x-1/2 -translate-y-1/2 sm:w-[min(70%,360px)]"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
           >
-            {startingConversation ? (
-              <>
-                <div className="h-6 w-6 rounded-full border-[3px] border-white border-t-transparent animate-spin sm:h-7 sm:w-7 sm:border-[3px]" />
-                <span className="tracking-normal sm:text-[20px]">Starting...</span>
-              </>
-            ) : (
-              <>
-                <Play size={26} className="transition-transform duration-200 group-hover:scale-110 sm:size-32" />
-                <span>Start Experience</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
+            <motion.button
+              onClick={handleStartConversation}
+              disabled={startingConversation}
+              className="group flex w-full items-center justify-center gap-3 rounded-[26px] px-6 py-4 text-lg font-semibold uppercase tracking-[0.25em] text-white shadow-[0_20px_45px_-25px_rgba(0,0,0,0.75)] sm:px-7 sm:py-5 sm:text-xl sm:tracking-[0.3em]"
+              style={{ backgroundColor: config.theme.primary }}
+              whileHover={startingConversation ? undefined : { scale: 1.02 }}
+              whileTap={startingConversation ? undefined : { scale: 0.96 }}
+              transition={{ duration: 0.18 }}
+            >
+              {startingConversation ? (
+                <>
+                  <div className="h-6 w-6 rounded-full border-[3px] border-white border-t-transparent animate-spin sm:h-7 sm:w-7 sm:border-[3px]" />
+                  <span className="tracking-normal sm:text-[20px]">Starting...</span>
+                </>
+              ) : (
+                <>
+                  <Play size={26} className="transition-transform duration-200 group-hover:scale-110 sm:size-32" />
+                  <span>Start Experience</span>
+                </>
+              )}
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {toolState.message && (
-        <div
-          className="absolute top-32 left-1/2 transform -translate-x-1/2 z-50 px-8 py-4 rounded-2xl shadow-2xl animate-pulse"
-          style={{
-            backgroundColor: `${config.theme.primary}dd`,
-            color: config.theme.onPrimary,
-          }}
-        >
-          <p className="text-2xl font-bold">{toolState.message}</p>
-        </div>
-      )}
+      <AnimatePresence>
+        {toolState.message && (
+          <motion.div
+            className="absolute top-32 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-8 py-4 shadow-2xl"
+            style={{
+              backgroundColor: `${config.theme.primary}dd`,
+              color: config.theme.onPrimary,
+            }}
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25 }}
+          >
+            <p className="text-2xl font-bold">{toolState.message}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
         {process.env.NODE_ENV === 'development' && (
           <div

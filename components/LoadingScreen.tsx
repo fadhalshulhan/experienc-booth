@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { BoothConfig } from '@/config/booths';
 
@@ -11,15 +12,22 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
   const { primary, accent, onPrimary } = config.theme;
 
   return (
-    <div 
+    <motion.div 
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
       style={{
         background: `linear-gradient(135deg, ${primary}, ${accent})`,
       }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
     >
       {/* Logo/Brand */}
-      <div 
+      <motion.div 
         className="w-32 h-32 rounded-full flex items-center justify-center shadow-2xl mb-6 bg-white/20 backdrop-blur"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         {config.logo ? (
           <Image
@@ -35,15 +43,26 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
             {config.name[0]}
           </span>
         )}
-      </div>
+      </motion.div>
 
       {/* Brand Name */}
-      <h1 className="text-5xl font-bold mb-10 sm:text-6xl" style={{ color: onPrimary }}>
+      <motion.h1
+        className="text-5xl font-bold mb-10 sm:text-6xl"
+        style={{ color: onPrimary }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.1 }}
+      >
         {config.name}
-      </h1>
+      </motion.h1>
 
       {/* Loading Spinner */}
-      <div className="relative w-32 h-32 mb-8">
+      <motion.div
+        className="relative w-32 h-32 mb-8"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.35, delay: 0.15 }}
+      >
         <div
           className="absolute inset-0 border-8 rounded-full"
           style={{ borderColor: `${onPrimary}50` }}
@@ -52,7 +71,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
           className="absolute inset-0 border-8 rounded-full animate-spin"
           style={{ borderColor: onPrimary, borderTopColor: 'transparent' }}
         ></div>
-      </div>
+      </motion.div>
 
       {/* Progress Bar */}
       {progress > 0 && (
@@ -68,12 +87,15 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
       )}
 
       {/* Loading Message */}
-      <div 
+      <motion.div 
         className="text-2xl font-medium"
         style={{ color: onPrimary }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.2 }}
       >
         {message}
-      </div>
+      </motion.div>
 
       {/* Progress Percentage */}
       {progress > 0 && (
@@ -84,7 +106,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
           {progress}%
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
