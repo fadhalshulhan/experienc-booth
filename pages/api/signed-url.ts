@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
+import { getBoothConfig } from '@/config/booths';
 
 const client = new ElevenLabsClient({ apiKey: process.env.XI_API_KEY });
 
@@ -9,7 +10,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const agentId = process.env.ELEVENLABS_AGENT_ID;
+    const boothIdParam = typeof req.query.boothId === 'string' ? req.query.boothId : undefined;
+    const boothConfig = getBoothConfig(boothIdParam);
+
+    const agentId =
+      boothConfig.agentId ||
+      (boothConfig.id === 'healthygo' ? process.env.HEALTHYGO_AGENT_ID : undefined) ||
+      (boothConfig.id === 'jago' ? process.env.JAGO_AGENT_ID : undefined)
+
     if (!agentId) {
       return res.status(500).json({ error: 'Agent ID not configured' });
     }

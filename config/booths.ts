@@ -17,8 +17,14 @@ export interface BoothConfig {
     secondary: string;
     accent: string;
     dark: string;
+    background: string;
+    text: string;
+    onPrimary: string;
   };
   logo: string;
+  favicon?: string;
+  logoWidth?: number;
+  logoHeight?: number;
   videos: VideoSet;
   agentId?: string; // Optional, can be set via env variable
 }
@@ -28,20 +34,25 @@ export const healthyGoConfig: BoothConfig = {
   id: 'healthygo',
   name: 'HealthyGo',
   theme: {
-    primary: '#10b981', // Green
-    secondary: '#059669',
-    accent: '#34d399',
-    dark: '#047857',
+    primary: '#1f4735',
+    secondary: '#f9eee9',
+    accent: '#3a7255',
+    dark: '#12281f',
+    background: '#ffffff',
+    text: '#1f4735',
+    onPrimary: '#f9eee9',
   },
   logo: '/logos/healthygo.png',
+  favicon: '/logos/healthygo.png',
+  logoWidth: 240,
+  logoHeight: 120,
   videos: {
     idle: [
       '/videos/healthygo/idle1.mp4',
-      '/videos/healthygo/idle2.mp4',
-      '/videos/healthygo/idle3.mp4',
     ],
     talking: '/videos/healthygo/talking.mp4',
     thinking: '/videos/healthygo/thinking.mp4',
+    preview: '/videos/healthygo/idle1.mp4',
     // Example tool-specific videos
     tool_nutrition_check: '/videos/healthygo/nutrition_check.mp4',
     tool_product_scan: '/videos/healthygo/product_scan.mp4',
@@ -54,18 +65,24 @@ export const jagoConfig: BoothConfig = {
   id: 'jago',
   name: 'Jago',
   theme: {
-    primary: '#3b82f6', // Blue
-    secondary: '#2563eb',
-    accent: '#60a5fa',
-    dark: '#1e40af',
+    primary: '#ee2737',
+    secondary: '#171818',
+    accent: '#ff5b6a',
+    dark: '#9b1c29',
+    background: '#ee2737',
+    text: '#ffffff',
+    onPrimary: '#ffffff',
   },
   logo: '/logos/jago.png',
+  favicon: '/logos/jagofavicon.png',
+  logoWidth: 200,
+  logoHeight: 70,
   videos: {
     idle: [
-      '/videos/jago/idle1.mp4',
-      '/videos/jago/idle2.mp4',
+      '/videos/jago/idle.mp4',
     ],
     talking: '/videos/jago/talking.mp4',
+    preview: '/videos/jago/idle.mp4',
   },
 };
 
@@ -77,7 +94,7 @@ export const booths: Record<string, BoothConfig> = {
 
 // Get booth config by ID or from environment
 export function getBoothConfig(boothId?: string): BoothConfig {
-  const id = boothId || process.env.NEXT_PUBLIC_BOOTH_TYPE || 'healthygo';
+  const id = boothId ?? 'healthygo';
   return booths[id] || healthyGoConfig;
 }
 

@@ -17,6 +17,8 @@ export function useVideoManager({ videos, onVideoChange }: VideoManagerOptions) 
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(videos.idle[0]);
   const [idleVideoIndex, setIdleVideoIndex] = useState(0);
   const [toolVideo, setToolVideo] = useState<string | null>(null);
+  const idlePlaybackCountRef = useRef(0);
+  const idleLoopThreshold = 2;
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const actionVideoKey = useRef(0);
@@ -31,12 +33,29 @@ export function useVideoManager({ videos, onVideoChange }: VideoManagerOptions) 
   // Play idle video (cycles through idle videos)
   const playIdleVideo = useCallback(() => {
     if (currentState === 'tool') return; // Don't interrupt tool videos
-    
+
     const idleVideos = videos.idle;
+    if (idleVideos.length === 0) {
+      return;
+    }
+
     const nextIndex = idleVideoIndex % idleVideos.length;
-    playVideo(idleVideos[nextIndex], 'idle');
+    const nextUrl = idleVideos[nextIndex];
+    playVideo(nextUrl, 'idle');
     setIdleVideoIndex(nextIndex + 1);
-  }, [videos.idle, idleVideoIndex, playVideo, currentState]);
+  }, [currentState, playVideo, videos.idle, idleVideoIndex]);
+
+  const playNextIdleVideo = useCallback(() => {
+    const idleVideos = videos.idle;
+    if (idleVideos.length === 0) {
+      return;
+    }
+
+    const nextIndex = idleVideoIndex % idleVideos.length;
+    const nextUrl = idleVideos[nextIndex];
+    playVideo(nextUrl, 'idle');
+    setIdleVideoIndex(nextIndex + 1);
+  }, [idleVideoIndex, playVideo, videos.idle]);
 
   // Play talking video
   const playTalkingVideo = useCallback(() => {
@@ -69,11 +88,17 @@ export function useVideoManager({ videos, onVideoChange }: VideoManagerOptions) 
       setToolVideo(null);
       playIdleVideo();
     } else if (currentState === 'idle') {
-      // Idle video finished, play next idle video
-      playIdleVideo();
+      idlePlaybackCountRef.current += 1;
+      if (idlePlaybackCountRef.current >= idleLoopThreshold) {
+        idlePlaybackCountRef.current = 0;
+        playNextIdleVideo();
+      } else if (videos.idle.length > 0) {
+        const previousIndex = (idleVideoIndex - 1 + videos.idle.length) % videos.idle.length;
+        playVideo(videos.idle[previousIndex], 'idle');
+      }
     }
     // Talking and thinking videos should loop
-  }, [currentState, playIdleVideo]);
+  }, [currentState, idleLoopThreshold, idleVideoIndex, playIdleVideo, playNextIdleVideo, playVideo, videos.idle]);
 
   // Handle when agent starts speaking
   const onAgentSpeaking = useCallback((speaking: boolean) => {
@@ -88,6 +113,7 @@ export function useVideoManager({ videos, onVideoChange }: VideoManagerOptions) 
   const resetToIdle = useCallback(() => {
     setIdleVideoIndex(0);
     setToolVideo(null);
+    idlePlaybackCountRef.current = 0;
     playIdleVideo();
   }, [playIdleVideo]);
 

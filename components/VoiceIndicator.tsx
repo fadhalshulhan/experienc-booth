@@ -4,28 +4,37 @@ interface VoiceIndicatorProps {
   isActive: boolean;
   isSpeaking: boolean;
   color: string;
+  textColor: string;
+  volumeLevel?: number;
 }
 
-export default function VoiceIndicator({ isActive, isSpeaking, color }: VoiceIndicatorProps) {
+export default function VoiceIndicator({ isActive, isSpeaking, color, textColor, volumeLevel = 0 }: VoiceIndicatorProps) {
+  const clampedVolume = Math.min(Math.max(volumeLevel, 0), 1);
+  const pulseScale = isActive ? 1 + clampedVolume * 0.35 : 1;
+  const ringOpacity = isActive ? 0.6 + clampedVolume * 0.4 : 0.3;
+
   return (
     <div className="flex items-center justify-center gap-4">
       {/* Voice activity indicator */}
       <div className="relative flex items-center justify-center">
         {/* Pulsing rings when speaking */}
-        {isSpeaking && (
+        {isActive && (
           <>
             <div 
-              className="absolute w-24 h-24 rounded-full voice-pulse"
-              style={{ 
-                backgroundColor: `${color}40`,
+              className="absolute h-24 w-24 rounded-full transition-all duration-150 ease-out"
+              style={{
+                backgroundColor: `${color}33`,
                 border: `2px solid ${color}`,
+                opacity: ringOpacity,
+                transform: `scale(${pulseScale})`,
               }}
             />
             <div 
-              className="absolute w-20 h-20 rounded-full voice-pulse"
-              style={{ 
-                backgroundColor: `${color}60`,
-                animationDelay: '0.2s',
+              className="absolute h-20 w-20 rounded-full transition-all duration-150 ease-out"
+              style={{
+                backgroundColor: `${color}55`,
+                opacity: ringOpacity,
+                transform: `scale(${1 + clampedVolume * 0.25})`,
               }}
             />
           </>
@@ -41,7 +50,13 @@ export default function VoiceIndicator({ isActive, isSpeaking, color }: VoiceInd
           }}
         >
           {isActive ? (
-            <Mic size={32} className="animate-pulse" />
+            <Mic
+              size={32}
+              style={{
+                transform: `scale(${1 + clampedVolume * 0.15})`,
+                transition: 'transform 120ms ease-out',
+              }}
+            />
           ) : (
             <MicOff size={32} />
           )}
@@ -50,13 +65,16 @@ export default function VoiceIndicator({ isActive, isSpeaking, color }: VoiceInd
 
       {/* Status text */}
       <div className="text-center">
-        <div 
+        <div
           className="text-2xl font-bold"
-          style={{ color }}
+          style={{ color: textColor }}
         >
-          {isActive ? (isSpeaking ? 'Listening...' : 'Ready') : 'Inactive'}
+          {isActive ? (isSpeaking ? 'Speaking...' : 'Listening...') : 'Inactive'}
         </div>
-        <div className="text-sm text-gray-400">
+        <div
+          className="text-sm"
+          style={{ color: textColor, opacity: 0.65 }}
+        >
           {isActive ? 'Speak to interact' : 'Start conversation'}
         </div>
       </div>

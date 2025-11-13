@@ -5,13 +5,15 @@ interface VideoPlayerProps {
   loop?: boolean;
   onEnded?: () => void;
   className?: string;
+  objectFit?: 'cover' | 'contain';
 }
 
-export default function VideoPlayer({ 
-  videoUrl, 
-  loop = false, 
+export default function VideoPlayer({
+  videoUrl,
+  loop = false,
   onEnded,
-  className = '' 
+  className = '',
+  objectFit = 'cover',
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -32,7 +34,7 @@ export default function VideoPlayer({
       loop={loop}
       playsInline
       onEnded={onEnded}
-      className={`w-full h-full object-cover ${className}`}
+      className={`w-full h-full ${objectFit === 'contain' ? 'object-contain bg-black' : 'object-cover'} ${className}`}
       style={{ pointerEvents: 'none' }}
     >
       <source src={videoUrl} type="video/mp4" />

@@ -57,7 +57,9 @@ export async function preloadVideos(
 /**
  * Get all video URLs from a video set configuration
  */
-export function getAllVideoUrls(videoSet: Record<string, string | string[]>): string[] {
+export function getAllVideoUrls(
+  videoSet: Record<string, string | string[] | undefined>
+): string[] {
   const urls = new Set<string>();
   
   Object.values(videoSet).forEach((value) => {

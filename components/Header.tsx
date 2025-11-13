@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { BoothConfig } from '@/config/booths';
 
 interface HeaderProps {
@@ -5,55 +6,34 @@ interface HeaderProps {
 }
 
 export default function Header({ config }: HeaderProps) {
-  const { primary, accent } = config.theme;
+  const { primary, secondary, background, text } = config.theme;
+  const hasLogo = Boolean(config.logo);
+  const logoWidth = config.logoWidth ?? 160;
+  const logoHeight = config.logoHeight ?? 80;
 
   return (
-    <div 
-      className="absolute top-0 left-0 w-full z-50 h-24"
-      style={{
-        background: `linear-gradient(135deg, ${primary}20, ${accent}30)`,
-        backdropFilter: 'blur(20px)',
-        borderBottom: `3px solid ${primary}`,
-      }}
-    >
-      <div className="flex items-center justify-center h-full px-12 relative">
-        {/* Left decorative frame */}
-        <div 
-          className="absolute left-8 top-1/2 -translate-y-1/2 w-32 h-16 rounded-lg border-4"
-          style={{ 
-            borderColor: primary,
-            background: `linear-gradient(45deg, ${primary}10, transparent)`,
-          }}
-        />
-
-        {/* Center logo */}
-        <div className="flex items-center gap-4">
-          <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-2xl"
-            style={{ 
-              background: `linear-gradient(135deg, ${primary}, ${accent})`,
-            }}
-          >
-            {config.name[0]}
+    <header className="absolute top-0 left-0 z-50 flex w-full items-center justify-center px-4 py-3 sm:px-6 sm:py-3.5">
+      <div
+        className="flex w-full max-w-[720px] items-center justify-center gap-4 rounded-3xl border border-white/10 bg-white/10 px-4 py-3 shadow-[0_18px_45px_-28px_rgba(0,0,0,0.6)] backdrop-blur-md sm:px-5 sm:py-3.5"
+        style={{
+          borderColor: `${primary}40`,
+          background: `linear-gradient(135deg, ${primary}66, ${secondary}40)`,
+        }}
+      >
+        {hasLogo && (
+          <div className="relative">
+            <Image
+              src={config.logo}
+              alt={`${config.name} logo`}
+              width={logoWidth * 0.6}
+              height={logoHeight * 0.6}
+              priority
+              style={{ objectFit: 'contain' }}
+            />
           </div>
-          <h1 
-            className="text-4xl font-bold tracking-wide"
-            style={{ color: primary }}
-          >
-            {config.name}
-          </h1>
-        </div>
-
-        {/* Right decorative frame */}
-        <div 
-          className="absolute right-8 top-1/2 -translate-y-1/2 w-32 h-16 rounded-lg border-4"
-          style={{ 
-            borderColor: primary,
-            background: `linear-gradient(225deg, ${primary}10, transparent)`,
-          }}
-        />
+        )}
       </div>
-    </div>
+    </header>
   );
 }
 
