@@ -11,10 +11,12 @@
     "@elevenlabs/elevenlabs-js": "^2.4.1",
     "@tsparticles/preset-links": "^3.2.0",
     "@tsparticles/react": "^3.0.0",
+    "@types/pdfkit": "^0.17.3",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.525.0",
     "next": "latest",
+    "pdfkit": "^0.17.2",
     "react": "latest",
     "react-dom": "latest"
   },

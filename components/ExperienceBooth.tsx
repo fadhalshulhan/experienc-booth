@@ -37,6 +37,26 @@ type ToolState = Record<string, unknown> & {
   currentScreen?: string;
 };
 
+interface ConsultationData {
+  age?: string;
+  snack_menu?: string;
+  bmi?: string;
+  ideal_weight?: string;
+  medical_history?: string;
+  bmi_status?: string;
+  exercise?: string;
+  goal?: string;
+  name?: string;
+  height?: string;
+  breakfast_menu?: string;
+  recommendation?: string;
+  lunch_menu?: string;
+  gender?: string;
+  calorie_recommendation?: string;
+  dinner_menu?: string;
+  weight?: string;
+}
+
 type ClientTools = {
   show_message: (params: { message: string; duration?: number }) => Promise<string>;
   trigger_effect: (params: { effect: string }) => Promise<string>;
@@ -45,6 +65,7 @@ type ClientTools = {
   end_conversation: () => Promise<string>;
   finish_interview: (params: Record<string, unknown>) => Promise<string>;
   show_selected_drink: (params: { name?: string; drink_name?: string; name_product?: string }) => Promise<string>;
+  create_report?: (params: ConsultationData) => Promise<string>;
 };
 
 const DEFAULT_TOOL_DURATION = 5000;
@@ -92,6 +113,9 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recommendationState, setRecommendationState] = useState<{ id: string; label: 'recommended' | 'selected' } | null>(null);
   const [toolState, setToolState] = useState<ToolState>({});
+  const [consultationData, setConsultationData] = useState<ConsultationData>({});
+  const [printUrl, setPrintUrl] = useState<string | null>(null);
+  const [reportCreated, setReportCreated] = useState(false);
   const startRipple = useRipple();
 
   const applyRecommendation = useCallback((id: string | null, label: 'recommended' | 'selected' = 'recommended') => {
@@ -128,6 +152,117 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
     }
   }, []);
 
+  // Function to create report for HealthyGo
+  const createReport = useCallback(async (data: ConsultationData): Promise<string> => {
+    try {
+      const reportData = {
+        age: data.age || '',
+        snack_menu: data.snack_menu || '',
+        bmi: data.bmi || '',
+        ideal_weight: data.ideal_weight || '',
+        medical_history: data.medical_history || '',
+        bmi_status: data.bmi_status || '',
+        exercise: data.exercise || '',
+        goal: data.goal || '',
+        name: data.name || '',
+        height: data.height || '',
+        breakfast_menu: data.breakfast_menu || '',
+        recommendation: data.recommendation || recommendationState?.id || '',
+        lunch_menu: data.lunch_menu || '',
+        gender: data.gender || '',
+        calorie_recommendation: data.calorie_recommendation || '',
+        dinner_menu: data.dinner_menu || '',
+        weight: data.weight || '',
+      };
+
+      // Step 1: Generate PDF first
+      const pdfResponse = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...reportData,
+          boothId: config.id,
+        }),
+      });
+
+      if (!pdfResponse.ok) {
+        throw new Error(`PDF generation failed: ${pdfResponse.status}`);
+      }
+
+      // Get PDF blob
+      const pdfBlob = await pdfResponse.blob();
+
+      // Step 2: Convert PDF to base64 for webhook
+      const pdfBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          // Remove data:application/pdf;base64, prefix
+          const base64 = base64String.split(',')[1] || base64String;
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
+
+      // Step 3: Send report data + PDF to webhook
+      const webhookResponse = await fetch('https://workflows.cekat.ai/webhook/healthy-go/innov', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...reportData,
+          pdf_base64: pdfBase64,
+          pdf_filename: `healthygo-report-${data.name || 'customer'}-${Date.now()}.pdf`,
+        }),
+      });
+
+      if (!webhookResponse.ok) {
+        throw new Error(`Webhook request failed: ${webhookResponse.status}`);
+      }
+
+      // Step 4: Send PDF to print endpoint as file
+      try {
+        const printFormData = new FormData();
+        const pdfFileName = `healthygo-report-${data.name || 'customer'}-${Date.now()}.pdf`;
+        printFormData.append('file', pdfBlob, pdfFileName);
+
+        const printResponse = await fetch('https://nontestable-odelia-isomerically.ngrok-free.dev/print', {
+          method: 'POST',
+          body: printFormData,
+        });
+
+        if (!printResponse.ok) {
+          console.warn('Print request failed, but report was created:', printResponse.status);
+        } else {
+          console.debug('PDF sent to printer successfully');
+        }
+      } catch (printError) {
+        // Print error is not critical, just log it
+        console.warn('Failed to send PDF to printer:', printError);
+      }
+
+      // Store print URL (PDF is generated on-demand, not stored permanently)
+      setPrintUrl('https://nontestable-odelia-isomerically.ngrok-free.dev/print');
+      setReportCreated(true);
+
+      // Clean up: PDF is not stored permanently, only generated on-demand
+      // The blob will be garbage collected after use
+      // PDF has been sent to:
+      // 1. Webhook (as base64 in JSON)
+      // 2. Print endpoint (as file in FormData)
+      
+      console.debug('Report created successfully with PDF. PDF sent to webhook and print endpoint.');
+      return 'Report created successfully. PDF is ready for printing.';
+    } catch (error) {
+      console.error('Error creating report:', error);
+      throw new Error(`Failed to create report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }, [recommendationState, config.id]);
+
   const clientTools: ClientTools & { end_conversation: () => Promise<string> } = useMemo(() => ({
     show_message: async ({ message, duration = DEFAULT_TOOL_DURATION }: { message: string; duration?: number }) => {
       setToolState((prev) => ({ ...prev, message }));
@@ -151,9 +286,33 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
     update_data: async ({ key, value }: { key: string; value: unknown }) => {
       setToolState((prev) => ({ ...prev, [key]: value }));
 
+      // Store consultation data for HealthyGo
+      if (config.id === 'healthygo') {
+        const consultationKeys: (keyof ConsultationData)[] = [
+          'age', 'snack_menu', 'bmi', 'ideal_weight', 'medical_history',
+          'bmi_status', 'exercise', 'goal', 'name', 'height',
+          'breakfast_menu', 'recommendation', 'lunch_menu', 'gender',
+          'calorie_recommendation', 'dinner_menu', 'weight',
+        ];
+
+        if (consultationKeys.includes(key as keyof ConsultationData)) {
+          setConsultationData((prev) => ({
+            ...prev,
+            [key]: typeof value === 'string' ? value : String(value || ''),
+          }));
+        }
+      }
+
       if (key === 'recommendation' || key === 'menu_item') {
         if (typeof value === 'string') {
           applyRecommendation(value, 'recommended');
+          // Update consultation data with recommendation
+          if (config.id === 'healthygo') {
+            setConsultationData((prev) => ({
+              ...prev,
+              recommendation: value,
+            }));
+          }
         } else if (value === null) {
           applyRecommendation(null);
         }
@@ -227,7 +386,51 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
 
       return 'Interview summary dispatched.';
     },
-  }), [applyRecommendation, playToolVideo, recommendationState?.id, config.id]);
+    // create_report tool for HealthyGo only
+    // This is a CLIENT TOOL, not a webhook tool
+    // Tool must be configured in ElevenLabs as "Client Tool" not "Webhook Tool"
+    // Tool accepts all consultation data parameters and generates PDF automatically
+    ...(config.id === 'healthygo' ? {
+      create_report: async (params: ConsultationData) => {
+        try {
+          // Merge params from ElevenLabs agent with existing consultation data
+          // All fields from schema are optional, we merge with existing data
+          const reportData: ConsultationData = {
+            // Existing consultation data (from update_data calls)
+            ...consultationData,
+            // Override with params from agent (agent can pass all or some fields)
+            ...params,
+            // Ensure recommendation is set (priority: params > consultationData > recommendationState)
+            recommendation: params.recommendation || consultationData.recommendation || recommendationState?.id || '',
+            // Ensure all required fields have values (empty string if not provided)
+            age: params.age || consultationData.age || '',
+            snack_menu: params.snack_menu || consultationData.snack_menu || '',
+            bmi: params.bmi || consultationData.bmi || '',
+            ideal_weight: params.ideal_weight || consultationData.ideal_weight || '',
+            medical_history: params.medical_history || consultationData.medical_history || '',
+            bmi_status: params.bmi_status || consultationData.bmi_status || '',
+            exercise: params.exercise || consultationData.exercise || '',
+            goal: params.goal || consultationData.goal || '',
+            name: params.name || consultationData.name || '',
+            height: params.height || consultationData.height || '',
+            breakfast_menu: params.breakfast_menu || consultationData.breakfast_menu || '',
+            lunch_menu: params.lunch_menu || consultationData.lunch_menu || '',
+            gender: params.gender || consultationData.gender || '',
+            calorie_recommendation: params.calorie_recommendation || consultationData.calorie_recommendation || '',
+            dinner_menu: params.dinner_menu || consultationData.dinner_menu || '',
+            weight: params.weight || consultationData.weight || '',
+          };
+
+          // Generate PDF and send to webhook + print endpoint
+          const result = await createReport(reportData);
+          return result;
+        } catch (error) {
+          console.error('create_report error:', error);
+          return `Failed to create report: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        }
+      },
+    } : {}),
+  }), [applyRecommendation, playToolVideo, recommendationState?.id, config.id, consultationData, createReport]);
 
   const handleStartConversation = useCallback(async () => {
     setStartingConversation(true);
