@@ -336,8 +336,69 @@ function generatePDF(data: ConsultationData, boothConfig: ReturnType<typeof getB
  * https://your-domain.vercel.app/api/healthy-go-webhook
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Allow GET for testing/debugging (return endpoint info)
+  if (req.method === 'GET') {
+    return res.status(200).json({
+      message: 'HealthyGo Webhook Endpoint',
+      method: 'POST',
+      description: 'This endpoint receives webhook calls from ElevenLabs when create_report tool is called.',
+      flow: [
+        '1. ElevenLabs → POST to this endpoint (with consultation data)',
+        '2. Endpoint → Generate PDF from consultation data',
+        '3. Endpoint → Forward data + PDF (base64) to webhook external',
+        '4. Endpoint → Send PDF (file) to print endpoint',
+        '5. Endpoint → Return success response to ElevenLabs',
+      ],
+      requiredFields: [
+        'name',
+        'age',
+        'gender',
+        'height',
+        'weight',
+        'bmi',
+        'bmi_status',
+        'ideal_weight',
+        'calorie_recommendation',
+        'medical_history',
+        'goal',
+        'exercise',
+        'breakfast_menu',
+        'lunch_menu',
+        'dinner_menu',
+        'snack_menu',
+        'recommendation',
+      ],
+      exampleRequest: {
+        name: 'John Doe',
+        age: '30',
+        gender: 'Male',
+        height: '170',
+        weight: '70',
+        bmi: '24.2',
+        bmi_status: 'Normal',
+        ideal_weight: '65',
+        calorie_recommendation: '2000',
+        medical_history: 'None',
+        goal: 'Maintain weight',
+        exercise: '30 minutes daily',
+        breakfast_menu: 'Oatmeal with fruits',
+        lunch_menu: 'Grilled chicken with vegetables',
+        dinner_menu: 'Salmon with rice',
+        snack_menu: 'Apple',
+        recommendation: 'Maintain current diet',
+      },
+      note: 'This endpoint only accepts POST requests. Use POST method to call this endpoint.',
+    });
+  }
+
+  // Only allow POST for actual webhook calls
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      error: 'Method not allowed',
+      message: 'This endpoint only accepts POST requests.',
+      allowedMethods: ['POST', 'GET'],
+      note: 'Use GET to see endpoint information, POST to process webhook calls.',
+    });
   }
 
   try {
