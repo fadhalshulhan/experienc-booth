@@ -44,6 +44,7 @@ type ClientTools = {
   navigate: (params: { screen: string }) => Promise<string>;
   end_conversation: () => Promise<string>;
   finish_interview: (params: Record<string, unknown>) => Promise<string>;
+  show_selected_drink: (params: { name?: string; drink_name?: string; name_product?: string }) => Promise<string>;
 };
 
 const DEFAULT_TOOL_DURATION = 5000;
@@ -182,15 +183,10 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
       setEndRequested(true);
       return 'Conversation ending requested.';
     },
-    show_selected_drink: async ({ name }: { name?: string }) => {
-      const candidate = [
-        name,
-        // Support alternative parameter names coming from ElevenLabs config
-        (arguments as unknown as { drink_name?: string }).drink_name,
-        (arguments as unknown as { name_product?: string }).name_product,
-      ].find((value): value is string => typeof value === 'string' && value.length > 0);
+    show_selected_drink: async ({ name, drink_name, name_product }) => {
+      const candidate = name ?? drink_name ?? name_product;
 
-      if (!candidate) {
+      if (!candidate || typeof candidate !== 'string') {
         return 'No drink name provided.';
       }
 
@@ -417,17 +413,12 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
       colors: [config.theme.primary, config.theme.accent, '#ffffff'],
       disableForReducedMotion: true,
     });
-
-    const timeout = window.setTimeout(() => {
-      setRecommendationState(null);
-    }, 15000);
-    return () => window.clearTimeout(timeout);
   }, [recommendationState, recommendationMap]);
 
   return (
     <>
       <Head>
-        <title>{config.name} | Experience Booth</title>
+        <title>{`${config.name} | Experience Booth`}</title>
         <link rel="icon" href={config.favicon ?? config.logo} />
       </Head>
       <div
