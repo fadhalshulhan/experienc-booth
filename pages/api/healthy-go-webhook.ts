@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getBoothConfig } from '@/config/booths';
 import PDFDocument from 'pdfkit';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface ConsultationData {
   age?: string;
@@ -433,7 +435,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Webhook external failure is not critical for the flow
     }
 
-    // Step 4: Send PDF to print endpoint as multipart/form-data
+    // Step 4: Save PDF to file local (optional, for development/testing)
+    // Only save if SAVE_PDF_TO_LOCAL environment variable is set to 'true'
+    // This is useful for development/testing, but not recommended for production
+    // In production (Vercel), file system is not persistent, so files will be lost
+    const saveToLocal = process.env.SAVE_PDF_TO_LOCAL === 'true';
+    let localFilePath: string | null = null;
+
+    if (saveToLocal) {
+      try {
+        // Create reports directory if it doesn't exist
+        const reportsDir = path.join(process.cwd(), 'tmp', 'reports');
+        if (!fs.existsSync(reportsDir)) {
+          fs.mkdirSync(reportsDir, { recursive: true });
+        }
+
+        // Generate filename
+        const timestamp = Date.now();
+        const sanitizedName = (consultationData.name || 'customer').replace(/[^a-zA-Z0-9]/g, '_');
+        const pdfFileName = `healthygo-report-${sanitizedName}-${timestamp}.pdf`;
+        localFilePath = path.join(reportsDir, pdfFileName);
+
+        // Write PDF to file
+        fs.writeFileSync(localFilePath, pdfBuffer);
+        console.debug('PDF saved to local file:', localFilePath);
+        console.debug('PDF size:', pdfBuffer.length, 'bytes');
+      } catch (saveError) {
+        // Save error is not critical, just log it
+        console.warn('Failed to save PDF to local file:', saveError);
+      }
+    }
+
+    // Step 5: Send PDF to print endpoint as multipart/form-data
+    // NOTE: PDF is sent directly to print endpoint
+    // In production (Vercel), PDF is not saved to file system (not persistent)
     try {
       const printUrl = 'https://nontestable-odelia-isomerically.ngrok-free.dev/print';
       const pdfFileName = `healthygo-report-${consultationData.name || 'customer'}-${Date.now()}.pdf`;
@@ -458,9 +493,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       if (!printResponse.ok) {
-        console.warn('Print request failed:', printResponse.status);
+        console.warn('Print request failed:', printResponse.status, await printResponse.text().catch(() => ''));
       } else {
         console.debug('PDF sent to printer successfully');
+        console.debug('PDF filename:', pdfFileName);
+        console.debug('PDF size:', pdfBuffer.length, 'bytes');
       }
     } catch (printError) {
       // Print error is not critical, just log it
@@ -471,6 +508,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       status: 'success',
       message: 'Report created successfully. PDF generated and sent to webhook and print endpoint.',
+      ...(saveToLocal && localFilePath ? {
+        localFilePath: localFilePath,
+        note: 'PDF saved to local file for testing (development only)',
+      } : {}),
     });
   } catch (error) {
     console.error('Error processing webhook:', error);

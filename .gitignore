@@ -33,3 +33,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Generated PDFs (temporary files for testing)
+tmp/reports/
+*.pdf
+
