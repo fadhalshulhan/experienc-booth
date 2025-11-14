@@ -5,8 +5,16 @@ export interface VideoSet {
   idle: string[];
   talking: string;
   thinking?: string;
+  preview?: string;
   // Tool-specific videos
   [key: string]: string | string[] | undefined;
+}
+
+export interface RecommendationItem {
+  id: string;
+  name: string;
+  image: string;
+  description?: string;
 }
 
 export interface BoothConfig {
@@ -22,10 +30,12 @@ export interface BoothConfig {
     onPrimary: string;
   };
   logo: string;
+  headerLogo?: string;
   favicon?: string;
   logoWidth?: number;
   logoHeight?: number;
   videos: VideoSet;
+  recommendations?: Record<string, RecommendationItem>;
   agentId?: string; // Optional, can be set via env variable
 }
 
@@ -43,16 +53,17 @@ export const healthyGoConfig: BoothConfig = {
     onPrimary: '#f9eee9',
   },
   logo: '/logos/healthygo.png',
+  headerLogo: '/logos/Healthy-Go_White.png',
   favicon: '/logos/healthygo.png',
   logoWidth: 240,
   logoHeight: 120,
   videos: {
     idle: [
-      '/videos/healthygo/idle1.mp4',
+      '/videos/healthygo/preview.mp4',
     ],
     talking: '/videos/healthygo/talking.mp4',
     thinking: '/videos/healthygo/thinking.mp4',
-    preview: '/videos/healthygo/idle1.mp4',
+    preview: '/videos/healthygo/preview.mp4',
     // Example tool-specific videos
     tool_nutrition_check: '/videos/healthygo/nutrition_check.mp4',
     tool_product_scan: '/videos/healthygo/product_scan.mp4',
@@ -79,10 +90,63 @@ export const jagoConfig: BoothConfig = {
   logoHeight: 70,
   videos: {
     idle: [
-      '/videos/jago/idle.mp4',
+      '/videos/jago/notTalking.mp4',
     ],
     talking: '/videos/jago/talking.mp4',
-    preview: '/videos/jago/idle.mp4',
+    thinking: '/videos/jago/notTalking.mp4',
+    preview: '/videos/jago/preview.mp4',
+  },
+  recommendations: {
+    jago_black_coffee: {
+      id: 'jago_black_coffee',
+      name: 'Jago Black Coffee',
+      image: '/menus/jago/jago-americano.png',
+    },
+    citrus_cold_brew: {
+      id: 'citrus_cold_brew',
+      name: 'Citrus Cold Brew',
+      image: '/menus/jago/citrus-cold-brew.png',
+    },
+    kopi_susu_jago: {
+      id: 'kopi_susu_jago',
+      name: 'Kopi Susu Jago',
+      image: '/menus/jago/kopi-susu-jago.png',
+    },
+    kopi_susu_oatside: {
+      id: 'kopi_susu_oatside',
+      name: 'Kopi Susu Oatside',
+      image: '/menus/jago/kopi-susu-oatside.png',
+    },
+    salted_caramel_latte: {
+      id: 'salted_caramel_latte',
+      name: 'Salted Caramel Latte',
+      image: '/menus/jago/salted-caramel-latte.png',
+    },
+    vanilla_latte: {
+      id: 'vanilla_latte',
+      name: 'Vanilla Latte',
+      image: '/menus/jago/vanilla-latte.png',
+    },
+    earl_grey_milk_tea: {
+      id: 'earl_grey_milk_tea',
+      name: 'Earl Grey Milk Tea',
+      image: '/menus/jago/jago-bubble-tea.png',
+    },
+    jago_chocolate: {
+      id: 'jago_chocolate',
+      name: 'Jago Chocolate',
+      image: '/menus/jago/jago-chocolate.png',
+    },
+    hojicha_lychee_tea: {
+      id: 'hojicha_lychee_tea',
+      name: 'Hojicha Lychee Tea',
+      image: '/menus/jago/hojicha-lychee-tea.png',
+    },
+    matcha_latte: {
+      id: 'matcha_latte',
+      name: 'Matcha Latte',
+      image: '/menus/jago/matcha-latte.png',
+    },
   },
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -16,13 +16,35 @@ export default function VideoPlayer({
   objectFit = 'cover',
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load();
-      videoRef.current.play().catch(err => {
+    const player = videoRef.current;
+    if (!player) {
+      return;
+    }
+
+    setIsReady(false);
+
+    const playVideo = async () => {
+      try {
+        await player.play();
+        setIsReady(true);
+      } catch (err) {
         console.warn('Video autoplay failed:', err);
-      });
+      }
+    };
+
+    if (player.readyState >= 2) {
+      void playVideo();
+    } else {
+      const handleCanPlay = () => {
+        player.removeEventListener('canplay', handleCanPlay);
+        void playVideo();
+      };
+
+      player.addEventListener('canplay', handleCanPlay);
+      return () => player.removeEventListener('canplay', handleCanPlay);
     }
   }, [videoUrl]);
 
@@ -34,7 +56,8 @@ export default function VideoPlayer({
       loop={loop}
       playsInline
       onEnded={onEnded}
-      className={`w-full h-full ${objectFit === 'contain' ? 'object-contain bg-black' : 'object-cover'} ${className}`}
+      onPlaying={() => setIsReady(true)}
+      className={`w-full h-full ${objectFit === 'contain' ? 'object-contain' : 'object-cover'} transition-opacity duration-400 ease-out ${isReady ? 'opacity-100' : 'opacity-75'} ${className}`}
       style={{ pointerEvents: 'none' }}
     >
       <source src={videoUrl} type="video/mp4" />

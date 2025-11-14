@@ -64,20 +64,22 @@ export default function VoiceIndicator({ isActive, isSpeaking, color, textColor,
       </div>
 
       {/* Status text */}
-      <div className="text-center">
-        <div
-          className="text-2xl font-bold"
-          style={{ color: textColor }}
-        >
-          {isActive ? (isSpeaking ? 'Speaking...' : 'Listening...') : 'Inactive'}
+      {isActive && (
+        <div className="text-center">
+          <div
+            className="text-2xl font-bold"
+            style={{ color: textColor }}
+          >
+            {isSpeaking ? 'Speaking...' : 'Listening...'}
+          </div>
+          <div
+            className="text-sm"
+            style={{ color: textColor, opacity: 0.65 }}
+          >
+            Speak to interact
+          </div>
         </div>
-        <div
-          className="text-sm"
-          style={{ color: textColor, opacity: 0.65 }}
-        >
-          {isActive ? 'Speak to interact' : 'Start conversation'}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

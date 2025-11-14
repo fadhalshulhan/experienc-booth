@@ -9,6 +9,9 @@
   "dependencies": {
     "@11labs/client": "latest",
     "@elevenlabs/elevenlabs-js": "^2.4.1",
+    "@tsparticles/preset-links": "^3.2.0",
+    "@tsparticles/react": "^3.0.0",
+    "canvas-confetti": "^1.9.4",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.525.0",
     "next": "latest",
@@ -16,6 +19,7 @@
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "24.0.13",
     "@types/react": "19.1.8",
     "autoprefixer": "^10.0.0",
