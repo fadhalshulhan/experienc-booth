@@ -1,0 +1,220 @@
+{
+  "type": "webhook",
+  "name": "create_report",
+  "description": "use this to input the variable to make a report",
+  "disable_interruptions": false,
+  "force_pre_tool_speech": "auto",
+  "assignments": [],
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "api_schema": {
+    "url": "https://experience-booth.vercel.app/api/healthy-go-webhook",
+    "method": "POST",
+    "path_params_schema": [],
+    "query_params_schema": [],
+    "request_body_schema": {
+      "id": "body",
+      "type": "object",
+      "description": "input the result of the consultation so for reporting",
+      "properties": [
+        {
+          "id": "age",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the age of the customer",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "snack_menu",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the snack menu",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "bmi",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the bmi",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "ideal_weight",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the ideal weight",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "medical_history",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the medical history",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "bmi_status",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the bmi status",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "exercise",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the exercise description",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "goal",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the goal",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "name",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the name of the customer",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "height",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the height of the customer",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "breakfast_menu",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the breakfast menu",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "recommendation",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the recommendation",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "lunch_menu",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the lunch menu",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "gender",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the gender of the customer",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "calorie_recommendation",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the calorie recommendation",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "dinner_menu",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the dinner menu",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "weight",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "input the weight of the customer",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        }
+      ],
+      "required": false,
+      "value_type": "llm_prompt"
+    },
+    "request_headers": [],
+    "auth_connection": null
+  },
+  "response_timeout_secs": 20,
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  }
+}
+
