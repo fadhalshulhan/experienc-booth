@@ -241,7 +241,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         return;
       }
 
-      const { Conversation } = await import('@11labs/client');
+      const { Conversation } = await import('@elevenlabs/client');
 
       const signedUrlResponse = await fetch(
         boothId ? `/api/signed-url?boothId=${encodeURIComponent(boothId)}` : '/api/signed-url',

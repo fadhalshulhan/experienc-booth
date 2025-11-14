@@ -1,5 +1,5 @@
 // Type definitions for ElevenLabs Client SDK
-declare module '@11labs/client' {
+declare module '@elevenlabs/client' {
   export interface ConversationConfig {
     signedUrl: string;
     clientTools?: Record<string, (params: any) => Promise<string>>;

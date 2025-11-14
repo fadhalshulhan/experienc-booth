@@ -169,7 +169,7 @@ NEXT_PUBLIC_BOOTH_TYPE=healthygo  # or 'jago'
 ## 🚀 Key Technical Features
 
 ### 1. ElevenLabs Integration
-- Uses `@11labs/client` for conversation
+- Uses `@elevenlabs/client` for conversation
 - Uses `@elevenlabs/elevenlabs-js` for API calls
 - Signed URL authentication
 - Real-time mode detection (speaking, listening, thinking)
