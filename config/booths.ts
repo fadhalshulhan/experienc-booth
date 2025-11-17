@@ -156,6 +156,11 @@ export const booths: Record<string, BoothConfig> = {
   jago: jagoConfig,
 };
 
+// Check if booth ID is valid
+export function isValidBoothId(boothId: string | undefined): boothId is string {
+  return !!boothId && boothId in booths;
+}
+
 // Get booth config by ID or from environment
 export function getBoothConfig(boothId?: string): BoothConfig {
   const id = boothId ?? 'healthygo';
