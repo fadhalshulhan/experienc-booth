@@ -41,7 +41,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
       >
         {(config.headerLogo || config.logo) ? (
           <Image
-            src={config.headerLogo || config.logo || ''}
+            src={config.id === 'cekat' ? '/logos/Cekat-logo-putih.png' : config.headerLogo || config.logo || ''}
             alt={`${config.name} logo`}
             width={84}
             height={84}
