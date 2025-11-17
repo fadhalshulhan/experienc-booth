@@ -23,7 +23,7 @@ export default function Header({ config, isCompact = false }: HeaderProps) {
 
   return (
     <motion.header
-      className="absolute top-0 left-0 z-50 flex w-full items-center justify-center px-4 py-3 sm:px-6 sm:py-3.5"
+      className="absolute top-2 left-0 z-50 flex w-full items-center justify-center px-4 py-3 sm:px-6 sm:py-3.5"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}

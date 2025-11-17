@@ -13,10 +13,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const boothIdParam = typeof req.query.boothId === 'string' ? req.query.boothId : undefined;
     const boothConfig = getBoothConfig(boothIdParam);
 
-    const agentId =
-      boothConfig.agentId ||
-      (boothConfig.id === 'healthygo' ? process.env.HEALTHYGO_AGENT_ID : undefined) ||
-      (boothConfig.id === 'jago' ? process.env.JAGO_AGENT_ID : undefined)
+    const boothAgentIds: Record<string, string | undefined> = {
+      healthygo: process.env.HEALTHYGO_AGENT_ID,
+      jago: process.env.JAGO_AGENT_ID,
+      cekat: process.env.CEKAT_AGENT_ID,
+    };
+
+    const agentId = boothConfig.agentId ?? boothAgentIds[boothConfig.id];
 
     if (!agentId) {
       return res.status(500).json({ error: 'Agent ID not configured' });

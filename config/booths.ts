@@ -150,8 +150,38 @@ export const jagoConfig: BoothConfig = {
   },
 };
 
+// Cekat Booth Configuration
+export const cekatConfig: BoothConfig = {
+  id: 'cekat',
+  name: 'Cekat',
+  theme: {
+    primary: '#004aad',
+    secondary: '#eaf2ff',
+    accent: '#007cf0',
+    dark: '#022b64',
+    background: '#ffffff',
+    text: '#022b64',
+    onPrimary: '#ffffff',
+  },
+  logo: '/logos/cekat.png',
+  headerLogo: '/logos/Cekat-logo-putih.png',
+  favicon: '/logos/cekat.png',
+  logoWidth: 320,
+  logoHeight: 140,
+  videos: {
+    idle: [
+      '/videos/cekat/idle.mp4',
+    ],
+    talking: '/videos/cekat/talking.mp4',
+    thinking: '/videos/cekat/thinking.mp4',
+    preview: '/videos/cekat/preview.mp4',
+  },
+  recommendations: {},
+};
+
 // Booth Registry
 export const booths: Record<string, BoothConfig> = {
+  cekat: cekatConfig,
   healthygo: healthyGoConfig,
   jago: jagoConfig,
 };

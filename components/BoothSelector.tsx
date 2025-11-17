@@ -3,8 +3,62 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { booths, type BoothConfig } from '@/config/booths';
-import ParticlesBackground from '@/components/ParticlesBackground';
+// import ParticlesBackground from '@/components/ParticlesBackground';
 import { useRipple } from '@/hooks/useRipple';
+
+const BACKGROUND_VIDEO_SOURCE = 'https://youtu.be/3Qpr3_3igus?list=TLGG1Dg9pE2T1MYxNzExMjAyNQ';
+
+const getYouTubeVideoId = (input: string): string | null => {
+  if (!input) {
+    return null;
+  }
+
+  const trimmed = input.trim();
+  const directIdPattern = /^[a-zA-Z0-9_-]{11}$/u;
+  if (directIdPattern.test(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    if (url.hostname.includes('youtu.be')) {
+      return url.pathname.replace('/', '');
+    }
+    if (url.hostname.includes('youtube.com')) {
+      if (url.searchParams.has('v')) {
+        return url.searchParams.get('v');
+      }
+      const segments = url.pathname.split('/').filter(Boolean);
+      if (segments[0] === 'embed' || segments[0] === 'shorts') {
+        return segments[1] ?? null;
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
+const buildYouTubeEmbedUrl = (input: string): string | null => {
+  const videoId = getYouTubeVideoId(input);
+  if (!videoId) {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    controls: '0',
+    loop: '1',
+    playlist: videoId,
+    modestbranding: '1',
+    rel: '0',
+    playsinline: '1',
+  });
+
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+};
 
 function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
   const { primary, accent, onPrimary } = boothOption.theme;
@@ -31,7 +85,7 @@ function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
         />
 
         <div className="relative flex flex-1 flex-col">
-          <span className="text-sm uppercase tracking-[0.35em] opacity-75">Experience</span>
+          <span className="text-sm uppercase tracking-[0.35em] opacity-75">Booth</span>
           <span className="text-2xl font-semibold">{boothOption.name}</span>
         </div>
 
@@ -75,13 +129,28 @@ function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
 
 export default function BoothSelector() {
   const availableBooths = useMemo(() => Object.values(booths), []);
+  const backgroundVideoUrl = useMemo(() => buildYouTubeEmbedUrl(BACKGROUND_VIDEO_SOURCE), []);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-6 py-12">
-      <ParticlesBackground className="absolute inset-0" opacity={0.25} />
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-6 py-12 text-white">
+      <div className="absolute inset-0 z-0">
+        {backgroundVideoUrl ? (
+          <iframe
+            src={backgroundVideoUrl}
+            title="Booth selector background"
+            className="h-full w-full scale-125 transform-gpu"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            frameBorder="0"
+          />
+        ) : (
+          <div className="h-full w-full bg-black" />
+        )}
+        <div className="absolute inset-0 bg-black/75" />
+      </div>
+      {/* <ParticlesBackground className="absolute inset-0" opacity={0.25} /> */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#ffffff15,transparent_60%)]" />
 
-      <div className="relative w-full max-w-md space-y-7">
+      <div className="relative z-10 w-full max-w-md space-y-7">
         {availableBooths.map((booth) => (
           <BoothCard key={booth.id} boothOption={booth} />
         ))}
