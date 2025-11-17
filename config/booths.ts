@@ -92,10 +92,10 @@ export const jagoConfig: BoothConfig = {
   logoHeight: 70,
   videos: {
     idle: [
-      '/videos/jago/thinking.mp4',
+      '/videos/jago/preview.mp4',
     ],
     talking: '/videos/jago/talking.mp4',
-    thinking: ['/videos/jago/thinking.mp4', '/videos/jago/thinking-2.mp4'],
+    thinking: '/videos/jago/thinking.mp4',
     preview: '/videos/jago/preview.mp4',
   },
   recommendations: {

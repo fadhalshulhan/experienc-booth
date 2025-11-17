@@ -816,7 +816,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                       videoUrl={videoSource}
                       loop={shouldLoop}
                       objectFit="cover"
-                      onEnded={handleVideoEnded}
+                      onEnded={shouldUsePreviewVideo ? undefined : handleVideoEnded}
                     />
                   )}
                 </motion.div>
