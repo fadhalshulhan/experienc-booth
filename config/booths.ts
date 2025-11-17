@@ -166,7 +166,7 @@ export const cekatConfig: BoothConfig = {
     onPrimary: '#ffffff',
   },
   logo: '/logos/cekat.png',
-  headerLogo: '/logos/Cekat-header.png',
+  headerLogo: '/logos/cekat-header.png',
   selectorLogo: '/logos/Cekat-logo-putih.png',
   favicon: '/logos/cekat.png',
   logoWidth: 320,

@@ -2,9 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['files.cekat.ai', 'upload.wikimedia.org'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'files.cekat.ai',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+    ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 
