@@ -95,7 +95,7 @@ function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         >
           <Image
-            src={boothOption.headerLogo ?? boothOption.logo}
+            src={boothOption.selectorLogo ?? boothOption.headerLogo ?? boothOption.logo}
             alt={`${boothOption.name} logo`}
             width={logoWidth * 0.5}
             height={logoHeight * 0.5}

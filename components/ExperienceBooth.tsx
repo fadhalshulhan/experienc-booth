@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useMemo, useState, useCallback, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Pointer } from 'lucide-react';
@@ -719,13 +720,23 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
     }
   }, [conversationActive]);
 
-  const previewVideo =
+  const previewSource =
     typeof config.videos.preview === 'string' ? (config.videos.preview as string) : undefined;
-  const isPreview = Boolean(previewVideo && !conversationActive);
-  const videoSource = isPreview ? previewVideo! : currentVideoUrl;
-  const shouldLoop = isPreview || currentState === 'talking' || currentState === 'thinking';
+  const previewIsImage = Boolean(
+    previewSource && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(previewSource.split('?')[0] ?? ''),
+  );
+  const showImagePreview = Boolean(previewIsImage && previewSource && !conversationActive);
+  const shouldUsePreviewVideo = Boolean(previewSource && !previewIsImage && !conversationActive);
+  const videoSource = shouldUsePreviewVideo ? previewSource! : currentVideoUrl;
+  const shouldLoop = shouldUsePreviewVideo || currentState === 'talking' || currentState === 'thinking';
   const recommendationMap = config.recommendations ?? {};
   const currentRecommendation = recommendationState ? recommendationMap[recommendationState.id] ?? null : null;
+
+  useEffect(() => {
+    if (recommendationState?.label === 'recommended') {
+      playToolVideo('writing_report');
+    }
+  }, [recommendationState, playToolVideo]);
 
   useEffect(() => {
     if (!recommendationState) {
@@ -777,20 +788,37 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             <div className="relative w-full" style={{ paddingTop: '177.78%' }}>
               <AnimatePresence initial={false} mode="sync">
                 <motion.div
-                  key={previewVideo && !conversationActive ? 'preview' : `${currentState}-${currentVideoUrl}`}
+                  key={
+                    showImagePreview
+                      ? 'preview-image'
+                      : shouldUsePreviewVideo
+                        ? 'preview-video'
+                        : `${currentState}-${currentVideoUrl}`
+                  }
                   className="absolute inset-0 overflow-hidden rounded-[32px] border border-white/10 shadow-[0_18px_65px_-35px_rgba(0,0,0,0.75)] shadow-black/30 backdrop-blur-sm"
                   initial={{ opacity: 0.85, scale: 0.995 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0.85, scale: 0.995 }}
                   transition={{ duration: 0.28, ease: 'easeOut' }}
                 >
-                  <VideoPlayer
-                    key={videoSource}
-                    videoUrl={videoSource}
-                    loop={shouldLoop}
-                    objectFit="cover"
-                    onEnded={handleVideoEnded}
-                  />
+                  {showImagePreview && previewSource ? (
+                    <Image
+                      src={previewSource}
+                      alt={`${config.name} preview`}
+                      fill
+                      priority
+                      sizes="(max-width: 768px) 100vw, 60vh"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <VideoPlayer
+                      key={videoSource}
+                      videoUrl={videoSource}
+                      loop={shouldLoop}
+                      objectFit="cover"
+                      onEnded={handleVideoEnded}
+                    />
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>

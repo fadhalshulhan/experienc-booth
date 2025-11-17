@@ -4,7 +4,7 @@
 export interface VideoSet {
   idle: string[];
   talking: string;
-  thinking?: string;
+  thinking?: string | string[];
   preview?: string;
   // Tool-specific videos
   [key: string]: string | string[] | undefined;
@@ -31,6 +31,7 @@ export interface BoothConfig {
   };
   logo: string;
   headerLogo?: string;
+  selectorLogo?: string;
   favicon?: string;
   logoWidth?: number;
   logoHeight?: number;
@@ -68,6 +69,7 @@ export const healthyGoConfig: BoothConfig = {
     tool_nutrition_check: '/videos/healthygo/nutrition_check.mp4',
     tool_product_scan: '/videos/healthygo/product_scan.mp4',
     tool_recommendation: '/videos/healthygo/recommendation.mp4',
+    tool_writing_report: '/videos/healthygo/writing_report.mp4',
   },
 };
 
@@ -90,10 +92,10 @@ export const jagoConfig: BoothConfig = {
   logoHeight: 70,
   videos: {
     idle: [
-      '/videos/jago/notTalking.mp4',
+      '/videos/jago/thinking.mp4',
     ],
     talking: '/videos/jago/talking.mp4',
-    thinking: '/videos/jago/notTalking.mp4',
+    thinking: ['/videos/jago/thinking.mp4', '/videos/jago/thinking-2.mp4'],
     preview: '/videos/jago/preview.mp4',
   },
   recommendations: {
@@ -164,7 +166,8 @@ export const cekatConfig: BoothConfig = {
     onPrimary: '#ffffff',
   },
   logo: '/logos/cekat.png',
-  headerLogo: '/logos/Cekat-logo-putih.png',
+  headerLogo: '/logos/Cekat-header.png',
+  selectorLogo: '/logos/Cekat-logo-putih.png',
   favicon: '/logos/cekat.png',
   logoWidth: 320,
   logoHeight: 140,
@@ -173,7 +176,7 @@ export const cekatConfig: BoothConfig = {
       '/videos/cekat/preview.mp4',
     ],
     talking: '/videos/cekat/talking.mp4',
-    thinking: '/videos/cekat/preview.mp4',
+    thinking: '/videos/cekat/thinking.mp4',
     preview: '/videos/cekat/preview.mp4',
   },
   recommendations: {},

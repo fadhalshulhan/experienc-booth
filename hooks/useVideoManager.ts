@@ -66,9 +66,18 @@ export function useVideoManager({ videos, onVideoChange }: VideoManagerOptions) 
   // Play thinking video
   const playThinkingVideo = useCallback(() => {
     if (currentState === 'tool') return; // Don't interrupt tool videos
-    if (videos.thinking) {
-      playVideo(videos.thinking, 'thinking');
+    const source = videos.thinking;
+    if (!source) {
+      return;
     }
+
+    if (Array.isArray(source)) {
+      const randomIndex = Math.floor(Math.random() * source.length);
+      playVideo(source[randomIndex], 'thinking');
+      return;
+    }
+
+    playVideo(source, 'thinking');
   }, [videos.thinking, playVideo, currentState]);
 
   // Play tool-specific video
