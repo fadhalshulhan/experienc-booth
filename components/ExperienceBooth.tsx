@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Pointer } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useRipple } from '@/hooks/useRipple';
@@ -25,6 +25,8 @@ interface ExperienceBoothProps {
 
 interface ConversationSession {
   endSession: () => Promise<void>;
+  sendUserMessage?: (text: string) => void;
+  sendUserActivity?: () => void;
 }
 
 type ConversationMode = {
@@ -36,6 +38,22 @@ type ToolState = Record<string, unknown> & {
   currentEffect?: string;
   currentScreen?: string;
 };
+
+interface PhoneNumberToolPayload {
+  prompt?: string;
+  placeholder?: string;
+  defaultValue?: string;
+  title?: string;
+}
+
+interface PhoneCaptureState {
+  title: string;
+  description: string;
+  placeholder: string;
+  value: string;
+  isSubmitting: boolean;
+  error?: string;
+}
 
 interface ConsultationData {
   age?: string;
@@ -66,6 +84,7 @@ type ClientTools = {
   finish_interview: (params: Record<string, unknown>) => Promise<string>;
   show_selected_drink: (params: { name?: string; drink_name?: string; name_product?: string }) => Promise<string>;
   create_report?: (params: ConsultationData) => Promise<string>;
+  request_phone_number?: (params?: PhoneNumberToolPayload) => Promise<string>;
 };
 
 const DEFAULT_TOOL_DURATION = 5000;
@@ -116,7 +135,9 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const [consultationData, setConsultationData] = useState<ConsultationData>({});
   const [printUrl, setPrintUrl] = useState<string | null>(null);
   const [reportCreated, setReportCreated] = useState<boolean>(false);
+  const [phoneCaptureState, setPhoneCaptureState] = useState<PhoneCaptureState | null>(null);
   const startRipple = useRipple();
+  const phoneCapturePromiseRef = useRef<{ resolve: (value: string) => void; reject: (reason?: string) => void } | null>(null);
 
   const applyRecommendation = useCallback((id: string | null, label: 'recommended' | 'selected' = 'recommended') => {
     if (!id) {
@@ -263,6 +284,84 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
     }
   }, [recommendationState, config.id]);
 
+  const resetPhoneCapture = useCallback(() => {
+    setPhoneCaptureState(null);
+    phoneCapturePromiseRef.current = null;
+  }, []);
+
+  const resolvePhoneCapture = useCallback((value: string) => {
+    phoneCapturePromiseRef.current?.resolve(value);
+    resetPhoneCapture();
+  }, [resetPhoneCapture]);
+
+  const rejectPhoneCapture = useCallback((reason?: string) => {
+    phoneCapturePromiseRef.current?.reject(reason ?? 'Phone capture dismissed');
+    resetPhoneCapture();
+  }, [resetPhoneCapture]);
+
+  const openPhoneCapture = useCallback((params: PhoneNumberToolPayload = {}) => {
+    return new Promise<string>((resolve, reject) => {
+      phoneCapturePromiseRef.current = { resolve, reject };
+      setPhoneCaptureState({
+        title: params.title ?? 'Konfirmasi Nomor Telepon',
+        description: params.prompt ?? 'Silakan pastikan nomor telepon Anda sudah benar sebelum melanjutkan.',
+        placeholder: params.placeholder ?? '08xxxxxxxxxx',
+        value: params.defaultValue ?? '',
+        isSubmitting: false,
+      });
+    });
+  }, []);
+
+  const handlePhoneInputChange = useCallback(
+    (nextValue: string) => {
+      setPhoneCaptureState((prev) => (prev ? { ...prev, value: nextValue, error: undefined } : prev));
+      try {
+        conversation?.sendUserActivity?.();
+      } catch (error) {
+        console.debug('sendUserActivity failed:', error);
+      }
+    },
+    [conversation],
+  );
+
+  const handlePhoneSubmit = useCallback(() => {
+    if (!phoneCaptureState) {
+      return;
+    }
+    const trimmed = phoneCaptureState.value.trim();
+    if (!trimmed) {
+      setPhoneCaptureState({ ...phoneCaptureState, error: 'Nomor telepon belum diisi.' });
+      return;
+    }
+    if (!conversation) {
+      setErrorMessage('Percakapan belum siap menerima input.');
+      return;
+    }
+    if (!conversation.sendUserMessage) {
+      setErrorMessage('Agent belum siap menerima nomor telepon.');
+      return;
+    }
+
+    try {
+      setPhoneCaptureState((prev) => (prev ? { ...prev, isSubmitting: true, error: undefined } : prev));
+      conversation.sendUserMessage(trimmed);
+      resolvePhoneCapture(trimmed);
+    } catch (error) {
+      console.error('Failed to send user message:', error);
+      setPhoneCaptureState((prev) => (prev ? { ...prev, isSubmitting: false, error: 'Gagal mengirim nomor, coba lagi.' } : prev));
+    }
+  }, [conversation, phoneCaptureState, resolvePhoneCapture]);
+
+  const handlePhoneCancel = useCallback(() => {
+    rejectPhoneCapture('User cancelled phone confirmation');
+  }, [rejectPhoneCapture]);
+
+  useEffect(() => {
+    if (!conversation && phoneCaptureState) {
+      rejectPhoneCapture('Conversation ended before confirmation');
+    }
+  }, [conversation, phoneCaptureState, rejectPhoneCapture]);
+
   const clientTools: ClientTools & { end_conversation: () => Promise<string> } = useMemo(() => ({
     show_message: async ({ message, duration = DEFAULT_TOOL_DURATION }: { message: string; duration?: number }) => {
       setToolState((prev) => ({ ...prev, message }));
@@ -386,6 +485,14 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
 
       return 'Interview summary dispatched.';
     },
+    ...(config.id === 'cekat'
+      ? {
+          request_phone_number: async (params?: PhoneNumberToolPayload) => {
+            const confirmedNumber = await openPhoneCapture(params);
+            return `Phone number confirmed: ${confirmedNumber}`;
+          },
+        }
+      : {}),
     // create_report tool for HealthyGo only
     // This is a CLIENT TOOL, not a webhook tool
     // Tool must be configured in ElevenLabs as "Client Tool" not "Webhook Tool"
@@ -430,7 +537,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         }
       },
     } : {}),
-  }), [applyRecommendation, playToolVideo, recommendationState?.id, config.id, consultationData, createReport]);
+  }), [applyRecommendation, playToolVideo, recommendationState?.id, config.id, consultationData, createReport, openPhoneCapture]);
 
   const handleStartConversation = useCallback(async () => {
     setStartingConversation(true);
@@ -779,6 +886,77 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             transition={{ duration: 0.2 }}
           >
             {errorMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {phoneCaptureState && (
+          <motion.div
+            className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="w-full max-w-lg rounded-3xl bg-white/95 p-6 text-slate-900 shadow-2xl backdrop-blur-lg"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
+                    Konfirmasi
+                  </p>
+                  <h3 className="text-2xl font-semibold text-slate-900">{phoneCaptureState.title}</h3>
+                  <p className="mt-2 text-sm text-slate-600">{phoneCaptureState.description}</p>
+                </div>
+
+                <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                  Nomor Telepon
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    pattern="[0-9+ ]*"
+                    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-base font-semibold tracking-wide text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    placeholder={phoneCaptureState.placeholder}
+                    value={phoneCaptureState.value}
+                    onChange={(event) => handlePhoneInputChange(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        handlePhoneSubmit();
+                      }
+                    }}
+                  />
+                </label>
+
+                {phoneCaptureState.error && (
+                  <p className="text-sm font-semibold text-red-500">{phoneCaptureState.error}</p>
+                )}
+
+                <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                  <button
+                    type="button"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+                    onClick={handlePhoneCancel}
+                    disabled={phoneCaptureState.isSubmitting}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handlePhoneSubmit}
+                    disabled={phoneCaptureState.isSubmitting || !phoneCaptureState.value.trim()}
+                  >
+                    Kirim
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
