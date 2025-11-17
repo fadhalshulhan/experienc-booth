@@ -170,10 +170,10 @@ export const cekatConfig: BoothConfig = {
   logoHeight: 140,
   videos: {
     idle: [
-      '/videos/cekat/idle.mp4',
+      '/videos/cekat/preview.mp4',
     ],
     talking: '/videos/cekat/talking.mp4',
-    thinking: '/videos/cekat/thinking.mp4',
+    thinking: '/videos/cekat/preview.mp4',
     preview: '/videos/cekat/preview.mp4',
   },
   recommendations: {},

@@ -9,10 +9,13 @@ declare module '@elevenlabs/client' {
     onModeChange?: (mode: { mode: string }) => void;
     onVolumeChange?: (volume: number) => void;
     onMessage?: (message: any) => void;
+    onStatusChange?: (status: string) => void;
   }
 
   export interface Conversation {
     endSession: () => Promise<void>;
+    sendUserMessage?: (text: string) => void;
+    sendUserActivity?: () => void;
   }
 
   export class Conversation {

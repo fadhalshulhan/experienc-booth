@@ -130,6 +130,8 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [volumeLevel, setVolumeLevel] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<string>('idle');
+  const [connectionNotice, setConnectionNotice] = useState<string | null>(null);
   const [recommendationState, setRecommendationState] = useState<{ id: string; label: 'recommended' | 'selected' } | null>(null);
   const [toolState, setToolState] = useState<ToolState>({});
   const [consultationData, setConsultationData] = useState<ConsultationData>({});
@@ -542,6 +544,8 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const handleStartConversation = useCallback(async () => {
     setStartingConversation(true);
     setErrorMessage(null);
+    setConnectionStatus('connecting');
+    setConnectionNotice('Connecting to AI...');
 
     try {
       const hasPermission = await requestMicrophonePermission();
@@ -571,6 +575,8 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
           setStartingConversation(false);
           window.conversationActive = true;
           playIdleVideo();
+          setConnectionStatus('ready');
+          setConnectionNotice(null);
         },
         onDisconnect: () => {
           console.debug('Disconnected from ElevenLabs');
@@ -581,10 +587,12 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
           window.conversationActive = false;
           resetToIdle();
           setRecommendationState(null);
+          setConnectionStatus('disconnected');
+          setConnectionNotice('Koneksi terputus. Tekan Restart untuk mencoba lagi.');
         },
         onError: (error: unknown) => {
           console.error('Conversation error:', error);
-          setErrorMessage('Conversation ended due to a technical issue.');
+          setErrorMessage('Koneksi bermasalah. Periksa internet Anda lalu coba lagi.');
           setStartingConversation(false);
           setConversation(null);
           setConversationActive(false);
@@ -592,6 +600,8 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
           setIsListening(false);
           resetToIdle();
           setRecommendationState(null);
+          setConnectionStatus('error');
+          setConnectionNotice('Terjadi gangguan jaringan. Silakan mulai ulang.');
         },
         onModeChange: (mode: ConversationMode) => {
           console.debug('Mode changed:', mode);
@@ -611,6 +621,14 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         },
         onVolumeChange: (volume: number) => {
           setVolumeLevel(volume);
+        },
+        onStatusChange: (status: string) => {
+          setConnectionStatus(status);
+          if (status === 'connecting' && conversationActive) {
+            setConnectionNotice('Menghubungkan ulang ke AI...');
+          } else if (status === 'ready') {
+            setConnectionNotice(null);
+          }
         },
       });
 
@@ -693,6 +711,13 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
     hasInitializedPlaybackRef.current = true;
     playIdleVideo();
   }, [playIdleVideo]);
+
+  useEffect(() => {
+    if (!conversationActive) {
+      setConnectionNotice(null);
+      setConnectionStatus('idle');
+    }
+  }, [conversationActive]);
 
   const previewVideo =
     typeof config.videos.preview === 'string' ? (config.videos.preview as string) : undefined;
@@ -800,7 +825,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
               {startingConversation ? (
                 <>
                   <div className="h-5 w-5 rounded-full border-[3px] border-white border-t-transparent animate-spin sm:h-6 sm:w-6 sm:border-[3px]" />
-                  <span className="tracking-normal sm:text-[18px]">Starting...</span>
+                  <span className="tracking-normal sm:text-[18px]">Connecting...</span>
                 </>
               ) : (
                 <>
@@ -844,6 +869,25 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         showControls={conversationActive}
       />
 
+      <div className="pointer-events-none absolute inset-x-0 bottom-[calc(220px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
+        <div className="flex w-full max-w-md flex-col items-center gap-2">
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.div
+                key="error-toast"
+                className="w-auto max-w-full rounded-2xl bg-red-700/95 px-5 py-2 text-center text-xs font-semibold text-white shadow-xl backdrop-blur"
+                initial={{ opacity: 0, y: -12, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                {errorMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
       <AnimatePresence>
         {toolState.message && (
           <motion.div
@@ -871,22 +915,6 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             label={recommendationState?.label === 'selected' ? 'Selected Drink' : 'Recommended'}
             onClose={() => setRecommendationState(null)}
           />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {errorMessage && (
-          <motion.div
-            key="error-toast"
-            className="absolute top-24 left-1/2 z-50 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold text-white"
-            style={{ backgroundColor: `${config.theme.primary}f0` }}
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.2 }}
-          >
-            {errorMessage}
-          </motion.div>
         )}
       </AnimatePresence>
 
