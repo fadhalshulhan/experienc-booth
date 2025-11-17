@@ -97,25 +97,25 @@ const getBoothConfiguration = (boothId?: string): BoothConfig =>
   getBoothConfig(boothId);
 
 export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
-  const config = useMemo(() => getBoothConfiguration(boothId), [boothId]);
-  const hasInitializedPlaybackRef = useRef(false);
-  const [endRequested, setEndRequested] = useState(false);
+  const config = useMemo<BoothConfig>(() => getBoothConfiguration(boothId), [boothId]);
+  const hasInitializedPlaybackRef = useRef<boolean>(false);
+  const [endRequested, setEndRequested] = useState<boolean>(false);
 
   const { isLoading: videosLoading, progress: videoProgress } = useVideoPreloader(config.videos);
 
   const [conversation, setConversation] = useState<ConversationSession | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [conversationActive, setConversationActive] = useState(false);
-  const [startingConversation, setStartingConversation] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [volumeLevel, setVolumeLevel] = useState(0);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [conversationActive, setConversationActive] = useState<boolean>(false);
+  const [startingConversation, setStartingConversation] = useState<boolean>(false);
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [volumeLevel, setVolumeLevel] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recommendationState, setRecommendationState] = useState<{ id: string; label: 'recommended' | 'selected' } | null>(null);
   const [toolState, setToolState] = useState<ToolState>({});
   const [consultationData, setConsultationData] = useState<ConsultationData>({});
   const [printUrl, setPrintUrl] = useState<string | null>(null);
-  const [reportCreated, setReportCreated] = useState(false);
+  const [reportCreated, setReportCreated] = useState<boolean>(false);
   const startRipple = useRipple();
 
   const applyRecommendation = useCallback((id: string | null, label: 'recommended' | 'selected' = 'recommended') => {
