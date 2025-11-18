@@ -133,6 +133,7 @@ const getBoothConfiguration = (boothId?: string): BoothConfig =>
 
 export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const config = useMemo<BoothConfig>(() => getBoothConfiguration(boothId), [boothId]);
+  const isJagoBooth = config.id === 'jago';
   const hasInitializedPlaybackRef = useRef<boolean>(false);
   const [endRequested, setEndRequested] = useState<boolean>(false);
 
@@ -156,6 +157,21 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const [phoneCaptureState, setPhoneCaptureState] = useState<PhoneCaptureState | null>(null);
   const startRipple = useRipple();
   const phoneCapturePromiseRef = useRef<{ resolve: (value: string) => void; reject: (reason?: string) => void } | null>(null);
+
+  const startButtonStyle = useMemo<CSSProperties>(
+    () =>
+      isJagoBooth
+        ? {
+            backgroundColor: config.theme.primary, // Red background for Jago
+            boxShadow: 'none',
+            borderRadius: '48px 0 48px 0', // rounded top-left and bottom-right
+          }
+        : {
+            backgroundColor: startingConversation ? `${config.theme.primary}cc` : `${config.theme.primary}b5`,
+            borderRadius: '9999px', // rounded-full
+          },
+    [config.theme.primary, isJagoBooth, startingConversation],
+  );
 
   const applyRecommendation = useCallback((id: string | null, label: 'recommended' | 'selected' = 'recommended') => {
     if (!id) {
@@ -903,23 +919,23 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             <motion.button
               onClick={handleStartConversation}
               disabled={startingConversation}
-              className="pointer-events-auto relative flex max-w-[420px] items-center justify-center gap-3 rounded-full px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_16px_35px_-20px_rgba(0,0,0,0.85)] backdrop-blur-lg transition-all duration-200 sm:px-10 sm:py-4 sm:text-base"
+              className="pointer-events-auto relative flex max-w-[420px] items-center justify-center gap-3 px-8 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white shadow-[0_16px_35px_-20px_rgba(0,0,0,0.85)] backdrop-blur-lg transition-all duration-200 sm:px-10 sm:py-4 sm:text-base"
               whileHover={startingConversation ? undefined : { scale: 1.03 }}
               whileTap={startingConversation ? undefined : { scale: 0.97 }}
               onPointerDown={startRipple.createRipple}
               variants={startButtonVariants}
               animate={startingConversation ? 'starting' : 'pulse'}
-              style={{ backgroundColor: startingConversation ? `${config.theme.primary}cc` : `${config.theme.primary}b5` }}
+              style={startButtonStyle}
             >
               {startingConversation ? (
                 <>
                   <div className="h-5 w-5 rounded-full border-[3px] border-white border-t-transparent animate-spin sm:h-6 sm:w-6 sm:border-[3px]" />
-                  <span className="tracking-normal sm:text-[18px]">Connecting...</span>
+                  <span className="tracking-normal sm:text-[18px] font-bold">Connecting...</span>
                 </>
               ) : (
                 <>
-                  <Pointer size={24} className="transition-transform duration-200 group-hover:scale-110" />
-                  <span className="text-center">Start Conversation</span>
+                  {!isJagoBooth && <Pointer size={24} className="transition-transform duration-200 group-hover:scale-110" />}
+                  <span className="text-center font-bold">{isJagoBooth ? 'MULAI PESAN KOPI' : 'Start Conversation'}</span>
                 </>
               )}
 
