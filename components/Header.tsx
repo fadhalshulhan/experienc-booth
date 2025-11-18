@@ -50,16 +50,16 @@ export default function Header({ config, isCompact = false, isConnected = false 
               style={{ 
                 objectFit: 'contain',
                 maxWidth: isJago 
-                  ? (isConnected ? 'min(35vw, 240px)' : 'min(30vw, 180px)')
-                  : (isConnected ? 'min(40vw, 280px)' : 'min(32vw, 220px)')
+                  ? (isConnected ? 'min(35vw, 240px)' : 'min(35vw, 220px)')
+                  : (isConnected ? 'min(40vw, 280px)' : 'min(38vw, 250px)')
               }}
               className={isJago 
                 ? (isConnected
                     ? 'scale-[1.2] xs:scale-[1.4] sm:scale-[1.7] md:scale-[1.4] lg:scale-[4.0] xl:scale-[1.6] 4k:scale-[5.5] mt-3 xs:mt-4 sm:mt-5 md:mt-4 lg:mt-6 xl:mt-5'
-                    : 'scale-[0.7] xs:scale-[0.8] sm:scale-[1.0] md:scale-[0.9] lg:scale-[2.5] xl:scale-[1.1] 4k:scale-[3.5] mt-2 xs:mt-3 sm:mt-4 md:mt-3 lg:mt-5 xl:mt-4')
+                    : 'scale-[0.9] xs:scale-[1.05] sm:scale-[1.25] md:scale-[1.1] lg:scale-[2.5] xl:scale-[1.3] 4k:scale-[3.5] mt-2 xs:mt-3 sm:mt-4 md:mt-3 lg:mt-5 xl:mt-4')
                 : (isConnected
                     ? 'scale-[1.1] xs:scale-[1.3] sm:scale-[1.5] md:scale-[1.3] lg:scale-[3.5] xl:scale-[1.6] 4k:scale-[4.5] mt-3 xs:mt-4 sm:mt-5 md:mt-4 lg:mt-6 xl:mt-5'
-                    : 'scale-[0.75] xs:scale-[0.85] sm:scale-[1.0] md:scale-[0.9] lg:scale-[2.5] xl:scale-[1.1] 4k:scale-[3.0] mt-2 xs:mt-3 sm:mt-4 md:mt-3 lg:mt-5 xl:mt-4')}
+                    : 'scale-[0.95] xs:scale-[1.1] sm:scale-[1.3] md:scale-[1.15] lg:scale-[2.5] xl:scale-[1.35] 4k:scale-[3.0] mt-2 xs:mt-3 sm:mt-4 md:mt-3 lg:mt-5 xl:mt-4')}
             />
           </motion.div>
         )}
