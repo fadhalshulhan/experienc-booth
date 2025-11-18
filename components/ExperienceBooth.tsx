@@ -136,6 +136,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
   const isJagoBooth = config.id === 'jago';
   const hasInitializedPlaybackRef = useRef<boolean>(false);
   const [endRequested, setEndRequested] = useState<boolean>(false);
+  const [currentPreviewIndex, setCurrentPreviewIndex] = useState<number>(0);
 
   const { isLoading: videosLoading, progress: videoProgress } = useVideoPreloader(config.videos);
 
@@ -797,15 +798,40 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
     }
   }, [conversationActive]);
 
-  const previewSource =
-    typeof config.videos.preview === 'string' ? (config.videos.preview as string) : undefined;
+  const previewVideos = useMemo<string[]>(() => {
+    const preview = config.videos.preview;
+    if (typeof preview === 'string') {
+      return [preview];
+    }
+    if (Array.isArray(preview) && preview.length > 0) {
+      return preview;
+    }
+    return [];
+  }, [config.videos.preview]);
+
+  const previewSource = previewVideos.length > 0 ? previewVideos[currentPreviewIndex] : undefined;
+
+  const handlePreviewVideoEnded = useCallback(() => {
+    if (previewVideos.length > 1) {
+      // Move to next video in the array, loop back to 0 if at the end
+      setCurrentPreviewIndex((prev) => (prev + 1) % previewVideos.length);
+    }
+  }, [previewVideos.length]);
+
+  // Reset preview index when conversation starts
+  useEffect(() => {
+    if (conversationActive) {
+      setCurrentPreviewIndex(0);
+    }
+  }, [conversationActive]);
+
   const previewIsImage = Boolean(
     previewSource && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(previewSource.split('?')[0] ?? ''),
   );
   const showImagePreview = Boolean(previewIsImage && previewSource && !conversationActive);
   const shouldUsePreviewVideo = Boolean(previewSource && !previewIsImage && !conversationActive);
   const videoSource = shouldUsePreviewVideo ? previewSource! : currentVideoUrl;
-  const shouldLoop = shouldUsePreviewVideo || currentState === 'talking' || currentState === 'thinking';
+  const shouldLoop = (shouldUsePreviewVideo && previewVideos.length <= 1) || currentState === 'talking' || currentState === 'thinking';
   const recommendationMap = config.recommendations ?? {};
   const currentRecommendation = recommendationState ? recommendationMap[recommendationState.id] ?? null : null;
 
@@ -869,7 +895,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                     showImagePreview
                       ? 'preview-image'
                       : shouldUsePreviewVideo
-                        ? 'preview-video'
+                        ? `preview-video-${currentPreviewIndex}`
                         : `${currentState}-${currentVideoUrl}`
                   }
                   className="absolute inset-0 overflow-hidden"
@@ -893,7 +919,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                       videoUrl={videoSource}
                       loop={shouldLoop}
                       objectFit="cover"
-                      onEnded={shouldUsePreviewVideo ? undefined : handleVideoEnded}
+                      onEnded={shouldUsePreviewVideo ? handlePreviewVideoEnded : handleVideoEnded}
                     />
                   )}
                 </motion.div>

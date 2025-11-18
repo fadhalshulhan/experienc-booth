@@ -5,7 +5,7 @@ export interface VideoSet {
   idle: string[];
   talking: string;
   thinking?: string | string[];
-  preview?: string;
+  preview?: string | string[];
   // Tool-specific videos
   [key: string]: string | string[] | undefined;
 }
@@ -93,10 +93,14 @@ export const jagoConfig: BoothConfig = {
   videos: {
     idle: [
       '/videos/jago/preview.mp4',
+      '/videos/jago/preview2.mp4',
     ],
     talking: '/videos/jago/talking.mp4',
     thinking: '/videos/jago/thinking.mp4',
-    preview: '/videos/jago/preview.mp4',
+    preview: [
+      '/videos/jago/preview.mp4',
+      '/videos/jago/preview2.mp4',
+    ],
   },
   recommendations: {
     jago_black_coffee: {
