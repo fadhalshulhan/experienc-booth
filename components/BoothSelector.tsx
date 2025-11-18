@@ -73,7 +73,7 @@ function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
         whileTap={{ scale: 0.96 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
         onPointerDown={createRipple}
-        className="group relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-3xl px-8 py-6"
+        className="group relative flex w-full items-center justify-between gap-3 xs:gap-4 overflow-hidden rounded-2xl xs:rounded-3xl px-5 py-4 xs:px-6 xs:py-5 sm:px-8 sm:py-6 md:px-10 md:py-7 lg:px-12 lg:py-8 4k:px-16 4k:py-10"
         style={{
           background: `linear-gradient(135deg, ${primary}, ${accent})`,
           color: onPrimary,
@@ -85,12 +85,12 @@ function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
         />
 
         <div className="relative flex flex-1 flex-col">
-          <span className="text-sm uppercase tracking-[0.35em] opacity-75">Booth</span>
-          <span className="text-2xl font-semibold">{boothOption.name}</span>
+          <span className="text-xs xs:text-sm uppercase tracking-[0.25em] xs:tracking-[0.35em] opacity-75">Booth</span>
+          <span className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl 4k:text-6xl font-semibold">{boothOption.name}</span>
         </div>
 
         <motion.div
-          className="relative flex items-center justify-center rounded-2xl bg-white/15 px-4 py-2"
+          className="relative flex items-center justify-center rounded-xl xs:rounded-2xl bg-white/15 px-3 py-1.5 xs:px-4 xs:py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-4 4k:px-12 4k:py-6"
           animate={{ rotate: [0, 2, -2, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         >
@@ -100,6 +100,7 @@ function BoothCard({ boothOption }: { boothOption: BoothConfig }) {
             width={logoWidth * 0.5}
             height={logoHeight * 0.5}
             style={{ objectFit: 'contain' }}
+            className="w-auto h-8 xs:h-10 sm:h-12 md:h-14 lg:h-20 4k:h-28"
             priority
           />
         </motion.div>
@@ -132,25 +133,31 @@ export default function BoothSelector() {
   const backgroundVideoUrl = useMemo(() => buildYouTubeEmbedUrl(BACKGROUND_VIDEO_SOURCE), []);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-6 py-12 text-white">
-      <div className="absolute inset-0 z-0">
-        {backgroundVideoUrl ? (
-          <iframe
-            src={backgroundVideoUrl}
-            title="Booth selector background"
-            className="h-full w-full scale-125 transform-gpu"
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-            frameBorder="0"
-          />
-        ) : (
-          <div className="h-full w-full bg-black" />
-        )}
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-3 xs:px-4 sm:px-6 md:px-8 lg:px-12 4k:px-16 py-8 xs:py-10 sm:py-12 md:py-14 lg:py-16 4k:py-20 text-white">
+      <div className="absolute inset-0 z-0 bg-black">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-full h-full max-w-[56.25vh]" style={{ aspectRatio: '9/16' }}>
+            <div className="relative w-full h-full">
+              {backgroundVideoUrl ? (
+                <iframe
+                  src={backgroundVideoUrl}
+                  title="Booth selector background"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                  frameBorder="0"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-black" />
+              )}
+            </div>
+          </div>
+        </div>
         <div className="absolute inset-0 bg-black/75" />
       </div>
       {/* <ParticlesBackground className="absolute inset-0" opacity={0.25} /> */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#ffffff15,transparent_60%)]" />
 
-      <div className="relative z-10 w-full max-w-md space-y-7">
+      <div className="relative z-10 w-full max-w-[90%] xs:max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl 4k:max-w-4xl space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8 4k:space-y-10">
         {availableBooths.map((booth) => (
           <BoothCard key={booth.id} boothOption={booth} />
         ))}

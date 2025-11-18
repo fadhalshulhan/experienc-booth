@@ -21,8 +21,8 @@ export default function Footer({ config, isActive, isSpeaking, volumeLevel, onRe
 
   return showControls ? (
     <motion.footer
-      className="pointer-events-none absolute inset-x-0 z-40 flex justify-center px-3"
-      style={{ bottom: 'calc(22px + env(safe-area-inset-bottom))' }}
+      className="pointer-events-none absolute inset-x-0 z-40 flex justify-center px-1.5 xs:px-2"
+      style={{ bottom: 'calc(120px + env(safe-area-inset-bottom))' }}
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -55,19 +55,37 @@ export default function Footer({ config, isActive, isSpeaking, volumeLevel, onRe
                 onClick={onEnd}
                 disabled={!isActive}
                 onPointerDown={isActive ? endRipple.createRipple : undefined}
-                className="relative flex items-center justify-center gap-1 rounded-full px-3 py-2 font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 hover:scale-[1.04] sm:w-auto"
+                className={`relative flex items-center justify-center rounded-full font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 hover:scale-[1.06] sm:w-auto ${
+                  isActive
+                    ? 'gap-1.5 px-4 py-2 text-sm xs:px-5 xs:py-2.5 xs:text-base xs:gap-2 sm:px-8 sm:py-3.5 sm:text-lg md:px-8 md:py-3 md:text-base lg:px-16 lg:py-8 lg:text-4xl xl:px-10 xl:py-4 xl:text-lg 4k:px-24 4k:py-12 4k:text-6xl sm:gap-2.5 md:gap-2 lg:gap-4 xl:gap-2.5'
+                    : 'gap-1.5 px-4 py-2 text-sm xs:gap-2 sm:gap-2.5'
+                }`}
                 style={{
                   backgroundColor: isActive ? endButtonColor : '#6b7280',
                   color: '#ffffff',
-                  boxShadow: isActive ? `0 10px 28px -22px ${endButtonColor}` : 'none',
+                  boxShadow: isActive ? `0 10px 28px -12px ${endButtonColor}` : 'none',
                 }}
-                whileHover={isActive ? { scale: 1.05 } : undefined}
-                whileTap={isActive ? { scale: 0.95 } : undefined}
+                whileHover={isActive ? { scale: 1.08 } : undefined}
+                whileTap={isActive ? { scale: 0.96 } : undefined}
                 transition={{ duration: 0.2 }}
               >
-                <StopCircle size={18} />
-                <span>End</span>
-
+                <StopCircle 
+                  size={isActive ? 54 : 40}
+                  className={isActive 
+                    ? 'w-6 h-6 xs:w-7 xs:h-7 sm:w-9 sm:h-9 md:w-8 md:h-8 lg:w-20 lg:h-20 xl:w-10 xl:h-10 4k:w-32 4k:h-32' 
+                    : 'w-6 h-6'
+                  }
+                />
+                <span
+                  className={
+                    isActive 
+                    ? 'text-sm xs:text-base sm:text-lg md:text-base lg:text-4xl xl:text-lg 4k:text-6xl font-bold'
+                    : 'text-sm font-bold'
+                  }
+                  style={{ marginLeft: '0.2em' }}
+                >
+                  END
+                </span>
                 <AnimatePresence>
                   {endRipple.ripples.map((ripple) => (
                     <motion.span

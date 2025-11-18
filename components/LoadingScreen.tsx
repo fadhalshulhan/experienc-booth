@@ -31,7 +31,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
 
       {/* Logo/Brand */}
       <motion.div
-        className="relative z-20 mb-8 flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-2xl"
+        className="relative z-20 mb-6 xs:mb-8 flex h-24 w-24 xs:h-28 xs:w-28 sm:h-32 sm:w-32 md:h-36 md:w-36 lg:h-48 lg:w-48 4k:h-64 4k:w-64 items-center justify-center rounded-full bg-white shadow-2xl"
         style={{
           background: `linear-gradient(135deg, ${accent}, ${primary})`,
         }}
@@ -46,10 +46,11 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
             width={84}
             height={84}
             style={{ objectFit: 'contain' }}
+            className="w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-36 lg:h-36 4k:w-48 4k:h-48"
             priority
           />
         ) : (
-          <span className="text-6xl font-bold" style={{ color: onPrimary }}>
+          <span className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl 4k:text-9xl font-bold" style={{ color: onPrimary }}>
             {config.name[0]}
           </span>
         )}
@@ -57,7 +58,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
 
       {/* Brand Name */}
       <motion.h1
-        className="relative z-20 text-5xl font-bold mb-10 sm:text-6xl"
+        className="relative z-20 text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl 4k:text-8xl font-bold mb-6 xs:mb-8 sm:mb-10 md:mb-12 lg:mb-16 4k:mb-20"
         style={{ color: onPrimary }}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,17 +69,17 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
 
       {/* Loading Spinner */}
       <motion.div
-        className="relative z-20 w-32 h-32 mb-8"
+        className="relative z-20 w-24 h-24 xs:w-28 xs:h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-48 lg:h-48 4k:w-64 4k:h-64 mb-6 xs:mb-8"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.35, delay: 0.15 }}
       >
         <div
-          className="absolute inset-0 border-8 rounded-full"
+          className="absolute inset-0 border-4 xs:border-6 sm:border-8 md:border-10 lg:border-12 4k:border-16 rounded-full"
           style={{ borderColor: `${onPrimary}50` }}
         ></div>
         <div
-          className="absolute inset-0 border-8 rounded-full animate-spin"
+          className="absolute inset-0 border-4 xs:border-6 sm:border-8 md:border-10 lg:border-12 4k:border-16 rounded-full animate-spin"
           style={{ borderColor: onPrimary, borderTopColor: 'transparent' }}
         ></div>
       </motion.div>
@@ -86,7 +87,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
       {/* Progress Bar */}
       {progress > 0 && (
         <div
-          className="relative z-20 w-96 h-4 rounded-full overflow-hidden mb-4"
+          className="relative z-20 w-64 xs:w-72 sm:w-96 md:w-[28rem] lg:w-[36rem] 4k:w-[48rem] h-3 xs:h-3.5 sm:h-4 md:h-5 lg:h-6 4k:h-8 rounded-full overflow-hidden mb-3 xs:mb-4"
           style={{ backgroundColor: `${onPrimary}40` }}
         >
           <div
@@ -98,7 +99,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
 
       {/* Loading Message */}
       <motion.div
-        className="relative z-20 text-2xl font-medium"
+        className="relative z-20 text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl 4k:text-4xl font-medium"
         style={{ color: onPrimary }}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -110,7 +111,7 @@ export default function LoadingScreen({ config, progress = 0, message = 'Loading
       {/* Progress Percentage */}
       {progress > 0 && (
         <div
-          className="relative z-20 text-xl mt-2"
+          className="relative z-20 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl 4k:text-3xl mt-2"
           style={{ color: onPrimary, opacity: 0.8 }}
         >
           {progress}%

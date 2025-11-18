@@ -15,6 +15,10 @@ module.exports = {
           dark: '#047857',
         },
       },
+      screens: {
+        'xs': '360px', // Extra small devices (small phones)
+        '4k': '2560px', // 4K UHD and above (3840 × 2160)
+      },
     },
   },
   plugins: [],

@@ -164,7 +164,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         ? {
             backgroundColor: config.theme.primary, // Red background for Jago
             boxShadow: 'none',
-            borderRadius: '48px 0 48px 0', // rounded top-left and bottom-right
+            // Border-radius handled by CSS class via data attribute for responsive 4K support
           }
         : {
             backgroundColor: startingConversation ? `${config.theme.primary}cc` : `${config.theme.primary}b5`,
@@ -860,9 +860,9 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
       )}
 
       <div className="absolute inset-0 z-0 bg-black">
-        <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
-          <div className="w-full" style={{ maxWidth: 'min(100%, 60vh)' }}>
-            <div className="relative w-full" style={{ paddingTop: '177.78%' }}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-full h-full max-w-[56.25vh]" style={{ aspectRatio: '9/16' }}>
+            <div className="relative w-full h-full">
               <AnimatePresence initial={false} mode="sync">
                 <motion.div
                   key={
@@ -872,7 +872,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                         ? 'preview-video'
                         : `${currentState}-${currentVideoUrl}`
                   }
-                  className="absolute inset-0 overflow-hidden rounded-[32px] border border-white/10 shadow-[0_18px_65px_-35px_rgba(0,0,0,0.75)] shadow-black/30 backdrop-blur-sm"
+                  className="absolute inset-0 overflow-hidden"
                   initial={{ opacity: 0.85, scale: 0.995 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0.85, scale: 0.995 }}
@@ -884,7 +884,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                       alt={`${config.name} preview`}
                       fill
                       priority
-                      sizes="(max-width: 768px) 100vw, 60vh"
+                      sizes="(max-width: 640px) 100vw, 56.25vh"
                       className="object-cover"
                     />
                   ) : (
@@ -909,7 +909,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         {!conversationActive && (
           <motion.div
             key="start-button"
-            className="absolute inset-x-0 z-20 flex justify-center px-6"
+            className="absolute inset-x-0 z-20 flex justify-center px-3 xs:px-4"
             style={{ bottom: 'calc(120px + env(safe-area-inset-bottom))' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -919,7 +919,12 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             <motion.button
               onClick={handleStartConversation}
               disabled={startingConversation}
-              className="pointer-events-auto relative flex max-w-[420px] items-center justify-center gap-3 px-8 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white shadow-[0_16px_35px_-20px_rgba(0,0,0,0.85)] backdrop-blur-lg transition-all duration-200 sm:px-10 sm:py-4 sm:text-base"
+              data-jago-button={isJagoBooth ? 'true' : undefined}
+              className={`pointer-events-auto relative flex items-center justify-center gap-2 font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 shadow-[0_16px_35px_-20px_rgba(0,0,0,0.85)] ${
+                isJagoBooth
+                  ? 'max-w-[96%] px-6 py-3 text-sm xs:max-w-[95%] xs:px-8 xs:py-4 xs:text-base xs:tracking-[0.2em] sm:max-w-[92%] sm:px-12 sm:py-5 sm:text-lg md:max-w-[88%] md:px-10 md:py-4 md:text-base lg:max-w-[84%] lg:px-28 lg:py-12 lg:text-4xl xl:max-w-[82%] xl:px-12 xl:py-5 xl:text-lg 4k:max-w-[1700px] 4k:px-[220px] 4k:py-24 4k:text-7xl xs:gap-2.5 sm:gap-3 md:gap-2.5 lg:gap-6 xl:gap-3 4k:gap-16'
+                  : 'max-w-[96%] px-6 py-3 text-sm backdrop-blur-lg xs:max-w-[95%] xs:px-8 xs:py-4 xs:text-base xs:tracking-[0.2em] sm:max-w-[92%] sm:px-12 sm:py-5 sm:text-lg md:max-w-[88%] md:px-10 md:py-4 md:text-base lg:max-w-[84%] lg:px-28 lg:py-12 lg:text-4xl xl:max-w-[82%] xl:px-12 xl:py-5 xl:text-lg 4k:max-w-[1700px] 4k:px-[220px] 4k:py-24 4k:text-7xl xs:gap-2.5 sm:gap-3 md:gap-2.5 lg:gap-6 xl:gap-3 4k:gap-16'
+              }`}
               whileHover={startingConversation ? undefined : { scale: 1.03 }}
               whileTap={startingConversation ? undefined : { scale: 0.97 }}
               onPointerDown={startRipple.createRipple}
@@ -928,14 +933,18 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
               style={startButtonStyle}
             >
               {startingConversation ? (
-                <>
-                  <div className="h-5 w-5 rounded-full border-[3px] border-white border-t-transparent animate-spin sm:h-6 sm:w-6 sm:border-[3px]" />
-                  <span className="tracking-normal sm:text-[18px] font-bold">Connecting...</span>
-                </>
+                <div className="flex items-center gap-2.5 xs:gap-3 sm:gap-4 md:gap-3 lg:gap-8 xl:gap-3.5">
+                  <motion.div
+                    className="rounded-full border-[2px] border-white border-t-transparent h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 sm:border-[3px] md:h-6 md:w-6 md:border-[3px] lg:h-14 lg:w-14 lg:border-[5px] xl:h-7 xl:w-7 xl:border-[3px] 4k:h-20 4k:w-20 4k:border-[7px]"
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.9, ease: "linear" }}
+                  />
+                  <span className="text-center font-bold text-sm xs:text-base sm:text-lg md:text-base lg:text-4xl xl:text-lg 4k:text-6xl">Connecting...</span>
+                </div>
               ) : (
                 <>
-                  {!isJagoBooth && <Pointer size={24} className="transition-transform duration-200 group-hover:scale-110" />}
-                  <span className="text-center font-bold">{isJagoBooth ? 'MULAI PESAN KOPI' : 'Start Conversation'}</span>
+                  {!isJagoBooth && <Pointer className="transition-transform duration-200 group-hover:scale-110 w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 md:w-6 md:h-6 lg:w-10 lg:h-10 xl:w-7 xl:h-7 4k:w-16 4k:h-16" />}
+                  <span className="text-center font-bold text-sm xs:text-base sm:text-lg md:text-base lg:text-4xl xl:text-lg 4k:text-6xl">{isJagoBooth ? 'MULAI PESAN KOPI' : 'Start Conversation'}</span>
                 </>
               )}
 
@@ -962,7 +971,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         )}
       </AnimatePresence>
 
-      <Header config={config} isCompact={conversationActive} />
+      <Header config={config} isCompact={conversationActive} isConnected={conversationActive} />
 
       <Footer
         config={config}
@@ -974,13 +983,13 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
         showControls={conversationActive}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-[calc(220px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-[calc(220px+env(safe-area-inset-bottom))] z-40 flex justify-center px-3 sm:px-4">
         <div className="flex w-full max-w-md flex-col items-center gap-2">
           <AnimatePresence>
             {errorMessage && (
               <motion.div
                 key="error-toast"
-                className="w-auto max-w-full rounded-2xl bg-red-700/95 px-5 py-2 text-center text-xs font-semibold text-white shadow-xl backdrop-blur"
+                className="w-auto max-w-full rounded-xl sm:rounded-2xl bg-red-700/95 px-4 py-2 sm:px-5 sm:py-2.5 text-center text-xs sm:text-sm font-semibold text-white shadow-xl backdrop-blur"
                 initial={{ opacity: 0, y: -12, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.98 }}
@@ -996,7 +1005,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
       <AnimatePresence>
         {toolState.message && (
           <motion.div
-            className="absolute top-32 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-8 py-4 shadow-2xl"
+            className="absolute top-24 sm:top-32 left-1/2 z-50 -translate-x-1/2 rounded-xl sm:rounded-2xl px-5 py-3 sm:px-8 sm:py-4 shadow-2xl max-w-[90%] sm:max-w-none"
             style={{
               backgroundColor: `${config.theme.primary}dd`,
               color: config.theme.onPrimary,
@@ -1006,7 +1015,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.25 }}
           >
-            <p className="text-2xl font-bold">{toolState.message}</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-center">{toolState.message}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1026,34 +1035,34 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
       <AnimatePresence>
         {phoneCaptureState && (
           <motion.div
-            className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+            className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 px-3 sm:px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-full max-w-lg rounded-3xl bg-white/95 p-6 text-slate-900 shadow-2xl backdrop-blur-lg"
+              className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-white/95 p-5 sm:p-6 text-slate-900 shadow-2xl backdrop-blur-lg"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
             >
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
+                  <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-slate-500">
                     Konfirmasi
                   </p>
-                  <h3 className="text-2xl font-semibold text-slate-900">{phoneCaptureState.title}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{phoneCaptureState.description}</p>
+                  <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">{phoneCaptureState.title}</h3>
+                  <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-600">{phoneCaptureState.description}</p>
                 </div>
 
-                <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                <label className="flex flex-col gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-slate-700">
                   Nomor Telepon
                   <input
                     type="tel"
                     inputMode="tel"
                     pattern="[0-9+ ]*"
-                    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-base font-semibold tracking-wide text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/80 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold tracking-wide text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     placeholder={phoneCaptureState.placeholder}
                     value={phoneCaptureState.value}
                     onChange={(event) => handlePhoneInputChange(event.target.value)}
@@ -1067,13 +1076,13 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                 </label>
 
                 {phoneCaptureState.error && (
-                  <p className="text-sm font-semibold text-red-500">{phoneCaptureState.error}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-red-500">{phoneCaptureState.error}</p>
                 )}
 
-                <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <div className="flex flex-col gap-2.5 sm:gap-3 pt-1.5 sm:pt-2 sm:flex-row">
                   <button
                     type="button"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold text-slate-700 transition hover:bg-slate-100"
                     onClick={handlePhoneCancel}
                     disabled={phoneCaptureState.isSubmitting}
                   >
@@ -1081,7 +1090,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl sm:rounded-2xl bg-blue-600 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={handlePhoneSubmit}
                     disabled={phoneCaptureState.isSubmitting || !phoneCaptureState.value.trim()}
                   >

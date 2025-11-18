@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import ExperienceBooth from '@/components/ExperienceBooth';
+import PasswordProtection from '@/components/PasswordProtection';
 import { isValidBoothId } from '@/config/booths';
 
 interface BoothPageProps {
@@ -7,7 +8,11 @@ interface BoothPageProps {
 }
 
 export default function BoothPage({ boothId }: BoothPageProps) {
-  return <ExperienceBooth boothId={boothId} />;
+  return (
+    <PasswordProtection>
+      <ExperienceBooth boothId={boothId} />
+    </PasswordProtection>
+  );
 }
 
 export const getServerSideProps: GetServerSideProps<BoothPageProps> = async ({ params }) => {
