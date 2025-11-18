@@ -76,6 +76,20 @@ interface ConsultationData {
   weight?: string;
 }
 
+interface ConsultationResult {
+  main_goal: string;
+  industry: string;
+  business_name: string;
+  main_channels: string[];
+  role: string;
+}
+
+interface ShowReportParams {
+  number?: string;
+  result_consultation?: ConsultationResult;
+  name?: string;
+}
+
 type ClientTools = {
   show_message: (params: { message: string; duration?: number }) => Promise<string>;
   trigger_effect: (params: { effect: string }) => Promise<string>;
@@ -86,6 +100,7 @@ type ClientTools = {
   show_selected_drink: (params: { name?: string; drink_name?: string; name_product?: string }) => Promise<string>;
   create_report?: (params: ConsultationData) => Promise<string>;
   request_phone_number?: (params?: PhoneNumberToolPayload) => Promise<string>;
+  show_report?: (params: ShowReportParams) => Promise<string>;
 };
 
 const DEFAULT_TOOL_DURATION = 5000;
@@ -488,11 +503,57 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
 
       return 'Interview summary dispatched.';
     },
+    // Tools for Cekat booth only
     ...(config.id === 'cekat'
       ? {
           request_phone_number: async (params?: PhoneNumberToolPayload) => {
             const confirmedNumber = await openPhoneCapture(params);
             return `Phone number confirmed: ${confirmedNumber}`;
+          },
+          show_report: async (params: ShowReportParams) => {
+            try {
+              // Validate required fields
+              if (!params.name || params.name.trim() === '') {
+                throw new Error('Nama customer harus diisi');
+              }
+
+              if (!params.result_consultation) {
+                throw new Error('Data konsultasi harus diisi');
+              }
+
+              const consultation = params.result_consultation;
+              if (!consultation.main_goal || !consultation.industry || !consultation.business_name || !consultation.role) {
+                throw new Error('Data konsultasi tidak lengkap');
+              }
+
+              // Show phone capture popup with pre-filled number if provided
+              const phoneNumber = await openPhoneCapture({
+                title: 'Konfirmasi Nomor Telepon',
+                prompt: 'Silakan pastikan nomor telepon Anda sudah benar sebelum melanjutkan.',
+                placeholder: '08xxxxxxxxxx',
+                defaultValue: params.number || '',
+              });
+
+              // Update tool state to show report summary (optional, for UI feedback)
+              setToolState((prev) => ({
+                ...prev,
+                reportStatus: 'shown',
+                reportData: {
+                  name: params.name,
+                  phoneNumber: phoneNumber,
+                  consultation: consultation,
+                },
+              }));
+
+              playToolVideo('show_report');
+
+              return `Report summary ditampilkan untuk ${params.name}`;
+            } catch (error) {
+              console.error('show_report error:', error);
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+              setErrorMessage(`Gagal menampilkan report: ${errorMessage}`);
+              return `Failed to show report: ${errorMessage}`;
+            }
           },
         }
       : {}),
