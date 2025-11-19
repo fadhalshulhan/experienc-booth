@@ -105,7 +105,7 @@ export const jagoConfig: BoothConfig = {
   recommendations: {
     jago_black_coffee: {
       id: 'jago_black_coffee',
-      name: 'Jago Black Coffee',
+      name: 'Jago Americano',
       image: '/menus/jago/jago-americano.png',
     },
     citrus_cold_brew: {
