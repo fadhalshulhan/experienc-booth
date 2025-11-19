@@ -1067,28 +1067,28 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-white/95 p-5 sm:p-6 text-slate-900 shadow-2xl backdrop-blur-lg"
+              className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-white/95 p-5 sm:p-6 text-slate-900 shadow-2xl backdrop-blur-lg md:max-w-2xl lg:max-w-4xl xl:max-w-3xl 4k:max-w-7xl md:p-8 lg:p-14 4k:p-28 lg:rounded-[2.5rem] 4k:rounded-[5rem]"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
             >
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-8 4k:space-y-16">
                 <div>
-                  <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-slate-500">
+                  <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-slate-500 md:text-base lg:text-2xl 4k:text-5xl lg:tracking-[0.3em]">
                     Konfirmasi
                   </p>
-                  <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">{phoneCaptureState.title}</h3>
-                  <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-600">{phoneCaptureState.description}</p>
+                  <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 md:text-3xl lg:text-5xl 4k:text-9xl lg:mt-2 4k:mt-4">{phoneCaptureState.title}</h3>
+                  <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-600 md:text-base lg:text-2xl 4k:text-5xl lg:mt-3 4k:mt-6">{phoneCaptureState.description}</p>
                 </div>
 
-                <label className="flex flex-col gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-slate-700">
+                <label className="flex flex-col gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-slate-700 md:gap-3 lg:gap-4 4k:gap-8 md:text-base lg:text-2xl 4k:text-5xl">
                   Nomor Telepon
                   <input
                     type="tel"
                     inputMode="tel"
                     pattern="[0-9+ ]*"
-                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/80 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold tracking-wide text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/80 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold tracking-wide text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 md:px-5 md:py-4 md:text-lg lg:px-8 lg:py-7 lg:text-3xl lg:rounded-3xl 4k:px-16 4k:py-14 4k:text-7xl 4k:rounded-[3rem] 4k:border-4 lg:border-2"
                     placeholder={phoneCaptureState.placeholder}
                     value={phoneCaptureState.value}
                     onChange={(event) => handlePhoneInputChange(event.target.value)}
@@ -1102,13 +1102,13 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                 </label>
 
                 {phoneCaptureState.error && (
-                  <p className="text-xs sm:text-sm font-semibold text-red-500">{phoneCaptureState.error}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-red-500 md:text-base lg:text-2xl 4k:text-5xl">{phoneCaptureState.error}</p>
                 )}
 
-                <div className="flex flex-col gap-2.5 sm:gap-3 pt-1.5 sm:pt-2 sm:flex-row">
+                <div className="flex flex-col gap-2.5 sm:gap-3 pt-1.5 sm:pt-2 sm:flex-row md:gap-4 lg:gap-6 4k:gap-12 md:pt-3 lg:pt-5 4k:pt-10">
                   <button
                     type="button"
-                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold text-slate-700 transition hover:bg-slate-100 md:px-6 md:py-4 md:text-lg lg:px-10 lg:py-7 lg:text-3xl lg:rounded-3xl 4k:px-20 4k:py-14 4k:text-7xl 4k:rounded-[3rem] 4k:border-4 lg:border-2"
                     onClick={handlePhoneCancel}
                     disabled={phoneCaptureState.isSubmitting}
                   >
@@ -1116,7 +1116,7 @@ export default function ExperienceBooth({ boothId }: ExperienceBoothProps) {
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-xl sm:rounded-2xl bg-blue-600 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl sm:rounded-2xl bg-blue-600 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60 md:px-6 md:py-4 md:text-lg lg:px-10 lg:py-7 lg:text-3xl lg:rounded-3xl 4k:px-20 4k:py-14 4k:text-7xl 4k:rounded-[3rem]"
                     onClick={handlePhoneSubmit}
                     disabled={phoneCaptureState.isSubmitting || !phoneCaptureState.value.trim()}
                   >
